@@ -2,104 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
+/* Pottery Tracker design system — all colors in HSL */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Typography */
+    --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+    --font-serif: "Noto Serif JP", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+    /* Palette */
+    --background: 40 30% 98%; /* sand */
+    --foreground: 24 15% 15%; /* ink */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 24 15% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 24 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 18 60% 45%; /* terracotta */
+    --primary-glow: 18 80% 70%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 40 25% 93%; /* paper */
+    --secondary-foreground: 24 15% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 30 16% 90%;
+    --muted-foreground: 25 10% 38%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 100 12% 85%; /* moss tint */
+    --accent-foreground: 24 15% 15%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 7 80% 45%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 27 20% 86%;
+    --input: 27 20% 86%;
+    --ring: 18 60% 45%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Sidebar tokens (not used heavily in MVP) */
+    --sidebar-background: 40 30% 98%;
+    --sidebar-foreground: 24 15% 15%;
+    --sidebar-primary: 18 60% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 25% 93%;
+    --sidebar-accent-foreground: 24 15% 15%;
+    --sidebar-border: 27 20% 86%;
+    --sidebar-ring: 18 60% 45%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Gradients & Shadows */
+    --gradient-ceramic: linear-gradient(135deg, hsl(var(--primary) / 0.98), hsl(var(--primary-glow) / 0.95));
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.25);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 24 20% 7%;
+    --foreground: 40 40% 96%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 24 20% 10%;
+    --card-foreground: 40 40% 96%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 24 20% 10%;
+    --popover-foreground: 40 40% 96%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 18 60% 55%;
+    --primary-glow: 18 80% 70%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 24 14% 14%;
+    --secondary-foreground: 40 40% 96%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 24 14% 14%;
+    --muted-foreground: 35 12% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 100 10% 18%;
+    --accent-foreground: 40 40% 96%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 7 70% 40%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 24 14% 18%;
+    --input: 24 14% 18%;
+    --ring: 18 60% 55%;
+
+    --sidebar-background: 24 20% 7%;
+    --sidebar-foreground: 40 40% 96%;
+    --sidebar-primary: 18 60% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 24 14% 14%;
+    --sidebar-accent-foreground: 40 40% 96%;
+    --sidebar-border: 24 14% 18%;
+    --sidebar-ring: 18 60% 55%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; font-family: var(--font-sans); }
+}
 
-  body {
-    @apply bg-background text-foreground;
-  }
+@layer components {
+  .bg-ceramic-gradient { background-image: var(--gradient-ceramic); }
 }
