@@ -12,7 +12,10 @@ import Inspirations from "./pages/Inspirations";
 import InspirationForm from "./pages/InspirationForm";
 import { ReminderChecker } from "./components/ReminderChecker";
 import Tasks from "./pages/Tasks";
+import Account from "./pages/Account";
+import StartNew from "./pages/StartNew";
 import BottomNav from "./components/BottomNav";
+import TopAppBar from "./components/TopAppBar";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +25,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="pb-20">
+        <TopAppBar />
+        <div className="pt-16 pb-20">
           <ReminderChecker />
           <Routes>
             <Route path="/" element={<Index />} />
@@ -32,6 +36,8 @@ const App = () => (
             <Route path="/piece/:id" element={<PieceDetail />} />
             <Route path="/inspirations" element={<Inspirations />} />
             <Route path="/new/inspiration" element={<InspirationForm />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/start-new" element={<StartNew />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
