@@ -16,6 +16,8 @@ import Account from "./pages/Account";
 import StartNew from "./pages/StartNew";
 import BottomNav from "./components/BottomNav";
 import TopAppBar from "./components/TopAppBar";
+import Onboarding from "./pages/Onboarding";
+import OnboardingGate from "./components/OnboardingGate";
 
 const queryClient = new QueryClient();
 
@@ -26,9 +28,11 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <TopAppBar />
+        <OnboardingGate />
         <div className="pt-16 pb-20">
           <ReminderChecker />
           <Routes>
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/" element={<Index />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/pieces" element={<Pieces />} />
