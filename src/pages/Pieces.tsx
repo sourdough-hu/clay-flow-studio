@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPieces } from "@/lib/storage";
 import { Piece, SizeCategory, Stage } from "@/types";
 import { SEO } from "@/components/SEO";
+import GreetingHeader from "@/components/GreetingHeader";
 
 const sizeOptions: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
 const stageOptions: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","finished"];
@@ -30,10 +31,13 @@ const Pieces = () => {
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Pieces" description="Browse and filter your pottery pieces." />
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Pieces</h1>
+      <header className="pb-2">
+        <GreetingHeader title="Pieces" />
+      </header>
+      <div className="flex items-center justify-end">
         <Link to="/new/piece" className="text-sm underline underline-offset-4 text-primary">New Piece</Link>
       </div>
+
 
       <div className="grid grid-cols-1 gap-2">
         <Input placeholder="Search titles, notes, tags" value={q} onChange={(e) => setQ(e.target.value)} />

@@ -1,5 +1,6 @@
 import { getInspirations } from "@/lib/storage";
 import { SEO } from "@/components/SEO";
+import GreetingHeader from "@/components/GreetingHeader";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -8,10 +9,13 @@ const Inspirations = () => {
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Inspirations" description="Browse your inspiration library." />
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Inspirations</h1>
+      <header className="pb-2">
+        <GreetingHeader title="Inspirations" />
+      </header>
+      <div className="flex items-center justify-end">
         <Link to="/new/inspiration" className="text-sm underline underline-offset-4 text-primary">New</Link>
       </div>
+
 
       <section className="space-y-3 pb-8">
         {items.length === 0 ? (

@@ -1,9 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
-import heroImage from "@/assets/clay-texture.jpg";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUpcomingTasks } from "@/lib/storage";
 import { SEO } from "@/components/SEO";
+import GreetingHeader from "@/components/GreetingHeader";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -17,20 +16,7 @@ const Index = () => {
       />
 
       <header className="px-4 pt-6 pb-4">
-        <div
-          className="rounded-xl overflow-hidden border bg-card"
-          aria-label="Decorative ceramic background"
-          style={{
-            backgroundImage: `linear-gradient(to bottom, hsl(var(--card) / 0.9), hsl(var(--card) / 0.95)), url(${heroImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="p-5">
-            <p className="text-sm text-muted-foreground">Hi Priscilla</p>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your pottery at a glance</h1>
-          </div>
-        </div>
+        <GreetingHeader title="Your pottery at a glance" />
       </header>
 
       <section className="px-4 grid grid-cols-2 gap-3">
