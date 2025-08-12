@@ -18,6 +18,7 @@ import BottomNav from "./components/BottomNav";
 import TopAppBar from "./components/TopAppBar";
 import Onboarding from "./pages/Onboarding";
 import OnboardingGate from "./components/OnboardingGate";
+import AppShell from "./components/AppShell";
 
 const queryClient = new QueryClient();
 
@@ -27,26 +28,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <TopAppBar />
-        <OnboardingGate />
-        <div className="pt-16 pb-20">
-          <ReminderChecker />
-          <Routes>
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/" element={<Index />} />
-            <Route path="/tasks" element={<Tasks />} />
-            <Route path="/pieces" element={<Pieces />} />
-            <Route path="/new/piece" element={<PieceForm />} />
-            <Route path="/piece/:id" element={<PieceDetail />} />
-            <Route path="/inspirations" element={<Inspirations />} />
-            <Route path="/new/inspiration" element={<InspirationForm />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/start-new" element={<StartNew />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
-        <BottomNav />
+        <AppShell />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

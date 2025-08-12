@@ -5,8 +5,7 @@ function hasUserOrGuest() {
   try {
     const user = localStorage.getItem("pt_user");
     const guest = localStorage.getItem("pt_guest_name");
-    const skipped = localStorage.getItem("pt_onboarding_skipped") === "1";
-    return Boolean(user || guest || skipped);
+    return Boolean(user || guest);
   } catch {
     return false;
   }
@@ -17,9 +16,14 @@ export const OnboardingGate = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const allowList = ["/onboarding", "/account"]; // allow visiting these without redirect
-    if (!hasUserOrGuest() && !allowList.includes(location.pathname)) {
+    const allowList = ["/onboarding", "/account"];
+    const has = hasUserOrGuest();
+    const atOnboarding = location.pathname === "/onboarding";
+
+    if (!has && !allowList.includes(location.pathname)) {
       navigate("/onboarding", { replace: true });
+    } else if (has && atOnboarding) {
+      navigate("/", { replace: true });
     }
   }, [location.pathname, navigate]);
 
