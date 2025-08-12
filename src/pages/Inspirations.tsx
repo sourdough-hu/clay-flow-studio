@@ -21,7 +21,7 @@ const Inspirations = () => {
   }, [searchInput]);
 
   const [link, setLink] = useState<string>("All");
-  const [pieceId, setPieceId] = useState<string>("");
+  const [pieceId, setPieceId] = useState<string>("all"); // use non-empty sentinel value
 
   const pieces = useMemo(() => getPieces(), []);
   function getPieceUpdatedAt(p: Piece): number {
@@ -44,7 +44,7 @@ const Inspirations = () => {
   }, [items]);
 
   const inspIdsForSelectedPiece = useMemo(() => {
-    if (!pieceId) return null;
+    if (pieceId === "all") return null;
     return new Set(getInspirationsForPiece(pieceId).map((i) => i.id));
   }, [pieceId]);
 
@@ -65,7 +65,7 @@ const Inspirations = () => {
       list = list.filter((ins) => (linkCountById.get(ins.id) ?? 0) === 0);
     }
 
-    if (pieceId && inspIdsForSelectedPiece) {
+    if (pieceId !== "all" && inspIdsForSelectedPiece) {
       list = list.filter((ins) => inspIdsForSelectedPiece.has(ins.id));
     }
 
@@ -90,7 +90,7 @@ const Inspirations = () => {
           <Select value={pieceId} onValueChange={setPieceId}>
             <SelectTrigger disabled={link === "Unlinked"}><SelectValue placeholder="All Pieces" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Pieces</SelectItem>
+              <SelectItem value="all">All Pieces</SelectItem>
               {pieceOptions.map((p) => (
                 <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
               ))}
