@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPieces } from "@/lib/storage";
 import { Piece, SizeCategory } from "@/types";
 import { SEO } from "@/components/SEO";
-import GreetingHeader from "@/components/GreetingHeader";
+
 
 const sizeOptions: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
 
@@ -35,9 +35,6 @@ const Gallery = () => {
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Gallery" description="Browse your finished pieces in the gallery." />
-      <header className="pb-2">
-        <GreetingHeader title="Gallery" />
-      </header>
       <div className="flex items-center justify-end">
         <Link to="/pieces" className="text-sm underline underline-offset-4 text-primary">Work in Progress</Link>
       </div>

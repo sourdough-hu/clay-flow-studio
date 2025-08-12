@@ -132,4 +132,6 @@
   .bg-ceramic-gradient { background-image: var(--gradient-ceramic); }
   .badge-accent-1 { background-color: hsl(var(--accent-1)); color: hsl(var(--text-on-dark)); border: 1px solid hsl(var(--border)); }
   .badge-accent-2 { background-color: hsl(var(--accent-2)); color: hsl(var(--text-on-dark)); border: 1px solid hsl(var(--border)); }
+  .nav-active { color: hsl(var(--accent-2)); }
+  .nav-inactive { color: hsl(var(--muted-foreground)); }
 }

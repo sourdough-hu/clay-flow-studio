@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPieces } from "@/lib/storage";
 import { Piece, SizeCategory, Stage } from "@/types";
 import { SEO } from "@/components/SEO";
-import GreetingHeader from "@/components/GreetingHeader";
+
 
 const sizeOptions: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
 const stageOptions: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","decorating"]; // no finished here
@@ -32,9 +32,6 @@ const Pieces = () => {
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Making" description="Track works in progress. Thumbnails, stage, and next checkpoint." />
-      <header className="pb-2">
-        <GreetingHeader title="Making" />
-      </header>
       <div className="flex items-center justify-end">
         <Link to="/new/piece" className="text-sm underline underline-offset-4 text-primary">New Piece</Link>
       </div>

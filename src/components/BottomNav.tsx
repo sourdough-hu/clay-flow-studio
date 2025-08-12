@@ -14,7 +14,7 @@ const BottomNav = () => {
           <NavLink
             to="/"
             className={({ isActive }) =>
-              cn(baseLink, "w-full h-16", isActive ? "text-primary" : "text-muted-foreground")
+              cn(baseLink, "w-full h-16", isActive ? "nav-active" : "nav-inactive")
             }
             aria-label="Home"
           >
@@ -26,7 +26,7 @@ const BottomNav = () => {
           <NavLink
             to="/tasks"
             className={({ isActive }) =>
-              cn(baseLink, "w-full h-16", isActive ? "text-primary" : "text-muted-foreground")
+              cn(baseLink, "w-full h-16", isActive ? "nav-active" : "nav-inactive")
             }
             aria-label="Tasks"
           >
@@ -38,7 +38,7 @@ const BottomNav = () => {
           <NavLink
             to="/pieces"
             className={({ isActive }) =>
-              cn(baseLink, "w-full h-16", isActive ? "text-primary" : "text-muted-foreground")
+              cn(baseLink, "w-full h-16", isActive ? "nav-active" : "nav-inactive")
             }
             aria-label="Making"
           >
@@ -50,7 +50,7 @@ const BottomNav = () => {
           <NavLink
             to="/gallery"
             className={({ isActive }) =>
-              cn(baseLink, "w-full h-16", isActive ? "text-primary" : "text-muted-foreground")
+              cn(baseLink, "w-full h-16", isActive ? "nav-active" : "nav-inactive")
             }
             aria-label="Gallery"
           >
@@ -62,7 +62,7 @@ const BottomNav = () => {
           <NavLink
             to="/inspirations"
             className={({ isActive }) =>
-              cn(baseLink, "w-full h-16", isActive ? "text-primary" : "text-muted-foreground")
+              cn(baseLink, "w-full h-16", isActive ? "nav-active" : "nav-inactive")
             }
             aria-label="Inspirations"
           >

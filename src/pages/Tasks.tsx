@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { format, isToday, isTomorrow, addDays, startOfDay, endOfDay, isWithinInterval } from "date-fns";
 import { SEO } from "@/components/SEO";
-import GreetingHeader from "@/components/GreetingHeader";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -154,9 +154,6 @@ const Tasks = () => {
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Tasks" description="View and manage your pottery tasks." />
 
-      <header>
-        <GreetingHeader title="Your tasks" />
-      </header>
 
 
       <section aria-label="Filters" className="grid gap-3 sm:grid-cols-2">

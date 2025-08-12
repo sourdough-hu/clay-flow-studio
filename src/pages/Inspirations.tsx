@@ -1,6 +1,6 @@
 import { getInspirations, getPiecesForInspiration } from "@/lib/storage";
 import { SEO } from "@/components/SEO";
-import GreetingHeader from "@/components/GreetingHeader";
+
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -9,9 +9,6 @@ const Inspirations = () => {
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Inspirations" description="Browse your inspiration library." />
-      <header className="pb-2">
-        <GreetingHeader title="Inspirations" />
-      </header>
       <div className="flex items-center justify-end">
         <Link to="/new/inspiration" className="text-sm underline underline-offset-4 text-primary">New</Link>
       </div>
