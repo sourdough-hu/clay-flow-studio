@@ -284,8 +284,8 @@ function TaskRow({ item, onDone, onSnooze }: { item: { piece: Piece; due: Date; 
         </div>
       </div>
       <div className="flex items-center justify-end gap-2 px-3 pb-3">
-        <Button variant="secondary" size="sm" onClick={onSnooze}>Snooze +1 day</Button>
-        <Button size="sm" onClick={onDone}>Done</Button>
+        <Button variant="secondary" size="lg" onClick={onSnooze}>Snooze +1 day</Button>
+        <Button size="lg" onClick={onDone}>Done</Button>
       </div>
     </li>
   );
