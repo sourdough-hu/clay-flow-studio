@@ -16,6 +16,7 @@ import Account from "@/pages/Account";
 import StartNew from "@/pages/StartNew";
 import Onboarding from "@/pages/Onboarding";
 import NotFound from "@/pages/NotFound";
+import Gallery from "@/pages/Gallery";
 
 const AppShell = () => {
   const location = useLocation();
@@ -38,6 +39,7 @@ const AppShell = () => {
           <Route path="/inspirations" element={<Inspirations />} />
           <Route path="/new/inspiration" element={<InspirationForm />} />
           <Route path="/inspiration/:id" element={<InspirationDetail />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route path="/account" element={<Account />} />
           <Route path="/start-new" element={<StartNew />} />
           <Route path="*" element={<NotFound />} />

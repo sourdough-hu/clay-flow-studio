@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { getPieceById, upsertPiece, getInspirationsForPiece } from "@/lib/storage";
 import { advanceStage } from "@/lib/stage";
 import { SEO } from "@/components/SEO";
+import CameraCapture from "@/components/CameraCapture";
 
 const PieceDetail = () => {
   const { id } = useParams();
@@ -81,6 +82,60 @@ const PieceDetail = () => {
           )}
         </CardContent>
       </Card>
+
+      {piece.current_stage === "finished" && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Photos</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-3 gap-2">
+                {(piece.photos ?? []).map((src, idx) => (
+                  <div key={idx} className="space-y-2">
+                    <img src={src} alt={`${piece.title} photo ${idx + 1}`} className="w-full aspect-square object-cover rounded-md border" />
+                    <div className="flex gap-2">
+                      <Button variant="secondary" size="sm" onClick={() => {
+                        const photos = [...(piece.photos ?? [])];
+                        const [chosen] = photos.splice(idx, 1);
+                        const updated = { ...piece, photos: [chosen, ...photos] };
+                        upsertPiece(updated);
+                        navigate(0);
+                      }}>Set as thumbnail</Button>
+                      <Button variant="outline" size="sm" onClick={() => {
+                        const photos = [...(piece.photos ?? [])];
+                        photos.splice(idx, 1);
+                        const updated = { ...piece, photos };
+                        upsertPiece(updated);
+                        navigate(0);
+                      }}>Delete</Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <CameraCapture value={null} onChange={(data) => {
+                if (!data) return;
+                const updated = { ...piece, photos: [...(piece.photos ?? []), data] };
+                upsertPiece(updated);
+                navigate(0);
+              }} label="+ Add Photo" />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Description</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {piece.description ? (
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{piece.description}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground">No description yet.</p>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* Inspirations section */}
       {getInspirationsForPiece(piece.id).length > 0 && (

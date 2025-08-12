@@ -27,6 +27,7 @@ const PieceEditForm = () => {
   const [notes, setNotes] = useState(piece?.notes ?? "");
   const [techNotes, setTechNotes] = useState(piece?.technique_notes ?? "");
   const [startDate, setStartDate] = useState(() => piece?.start_date ? piece.start_date.slice(0,10) : "");
+  const [description, setDescription] = useState(piece?.description ?? "");
 
   if (!piece) return <main className="p-4">Piece not found.</main>;
 
@@ -42,6 +43,7 @@ const PieceEditForm = () => {
       tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
       technique_notes: techNotes || undefined,
       start_date: startDate ? new Date(startDate).toISOString() : piece.start_date,
+      description: description || undefined,
     };
     upsertPiece(updated);
     navigate(`/piece/${piece.id}`);
@@ -89,6 +91,7 @@ const PieceEditForm = () => {
           <Input placeholder="Tags (comma separated)" value={tags} onChange={(e) => setTags(e.target.value)} />
           <Textarea placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
           <Textarea placeholder="Technique notes" value={techNotes} onChange={(e) => setTechNotes(e.target.value)} />
+          <Textarea placeholder="Write a short story about this piece…" value={description} onChange={(e) => setDescription(e.target.value)} />
         </CardContent>
       </Card>
     </main>

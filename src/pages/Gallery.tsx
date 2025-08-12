@@ -4,53 +4,47 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPieces } from "@/lib/storage";
-import { Piece, SizeCategory, Stage } from "@/types";
+import { Piece, SizeCategory } from "@/types";
 import { SEO } from "@/components/SEO";
 import GreetingHeader from "@/components/GreetingHeader";
 
 const sizeOptions: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
-const stageOptions: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing"]; // no finished here
 
-const Pieces = () => {
+const Gallery = () => {
   const [q, setQ] = useState("");
-  const [stage, setStage] = useState<string>("");
   const [size, setSize] = useState<string>("");
+  const [tag, setTag] = useState<string>("");
+
+  const finished = useMemo(() => {
+    const items = getPieces().filter((p) => p.current_stage === "finished");
+    const uniqueTags = Array.from(new Set(items.flatMap((p) => p.tags ?? []))).sort();
+    return { items, uniqueTags };
+  }, []);
 
   const filtered = useMemo(() => {
-    const items = getPieces();
-    return items.filter((p) => {
-      if (p.current_stage === "finished") return false;
+    return finished.items.filter((p) => {
       const matchQ = q
         ? (p.title + " " + (p.notes ?? "") + " " + (p.tags ?? []).join(",")).toLowerCase().includes(q.toLowerCase())
         : true;
-      const matchStage = stage ? p.current_stage === stage : true;
       const matchSize = size ? p.size_category === size : true;
-      return matchQ && matchStage && matchSize;
+      const matchTag = tag ? (p.tags ?? []).includes(tag) : true;
+      return matchQ && matchSize && matchTag;
     });
-  }, [q, stage, size]);
+  }, [q, size, tag, finished.items]);
 
   return (
     <main className="min-h-screen p-4 space-y-4">
-      <SEO title="Pottery Tracker — Work in Progress" description="Track works in progress. Thumbnails, stage, and next checkpoint." />
+      <SEO title="Pottery Tracker — Gallery" description="Browse your finished pieces in the gallery." />
       <header className="pb-2">
-        <GreetingHeader title="Work in Progress" />
+        <GreetingHeader title="Gallery" />
       </header>
       <div className="flex items-center justify-end">
-        <Link to="/new/piece" className="text-sm underline underline-offset-4 text-primary">New Piece</Link>
+        <Link to="/pieces" className="text-sm underline underline-offset-4 text-primary">Work in Progress</Link>
       </div>
-
 
       <div className="grid grid-cols-1 gap-2">
         <Input placeholder="Search titles, notes, tags" value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="grid grid-cols-2 gap-2">
-          <Select onValueChange={setStage} value={stage}>
-            <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
-            <SelectContent>
-              {stageOptions.map((s) => (
-                <SelectItem key={s} value={s}>{s.replace("_"," ")}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Select onValueChange={setSize} value={size}>
             <SelectTrigger><SelectValue placeholder="Size" /></SelectTrigger>
             <SelectContent>
@@ -59,12 +53,20 @@ const Pieces = () => {
               ))}
             </SelectContent>
           </Select>
+          <Select onValueChange={setTag} value={tag}>
+            <SelectTrigger><SelectValue placeholder="Tag" /></SelectTrigger>
+            <SelectContent>
+              {finished.uniqueTags.map((t) => (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       <section className="space-y-3 pb-8">
         {filtered.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No pieces in progress — start something new.</p>
+          <p className="text-sm text-muted-foreground">No finished pieces yet — complete a piece to see it here.</p>
         ) : (
           filtered.map((p) => (
             <Link to={`/piece/${p.id}`} key={p.id} className="block">
@@ -76,12 +78,9 @@ const Pieces = () => {
                   <CardTitle className="text-lg">{p.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0 text-sm text-muted-foreground">
-                  <div className="flex flex-wrap gap-3">
-                    <span>Stage: <span className="text-foreground font-medium">{p.current_stage.replace("_"," ")}</span></span>
-                    {p.next_reminder_at && (
-                      <span>Next checkpoint: <span className="text-foreground font-medium">{new Date(p.next_reminder_at).toLocaleDateString()}</span></span>
-                    )}
-                  </div>
+                  {(p.tags && p.tags.length > 0) && (
+                    <div>Tags: <span className="text-foreground font-medium">{p.tags.join(", ")}</span></div>
+                  )}
                 </CardContent>
               </Card>
             </Link>
@@ -92,4 +91,4 @@ const Pieces = () => {
   );
 };
 
-export default Pieces;
+export default Gallery;

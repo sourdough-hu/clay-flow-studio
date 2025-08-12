@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, ListTodo, Box, Lightbulb } from "lucide-react";
+import { Home, ListTodo, Box, Images, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const BottomNav = () => {
@@ -9,7 +9,7 @@ const BottomNav = () => {
       className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60"
       aria-label="Primary"
     >
-      <ul className="mx-auto grid max-w-screen-sm grid-cols-4">
+      <ul className="mx-auto grid max-w-screen-sm grid-cols-5">
         <li className="flex items-stretch">
           <NavLink
             to="/"
@@ -40,10 +40,22 @@ const BottomNav = () => {
             className={({ isActive }) =>
               cn(baseLink, "w-full h-16", isActive ? "text-primary" : "text-muted-foreground")
             }
-            aria-label="Pieces"
+            aria-label="Work in Progress"
           >
             <Box className="h-5 w-5" aria-hidden="true" />
-            <span>Pieces</span>
+            <span>Work in Progress</span>
+          </NavLink>
+        </li>
+        <li className="flex items-stretch">
+          <NavLink
+            to="/gallery"
+            className={({ isActive }) =>
+              cn(baseLink, "w-full h-16", isActive ? "text-primary" : "text-muted-foreground")
+            }
+            aria-label="Gallery"
+          >
+            <Images className="h-5 w-5" aria-hidden="true" />
+            <span>Gallery</span>
           </NavLink>
         </li>
         <li className="flex items-stretch">

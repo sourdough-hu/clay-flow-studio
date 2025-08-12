@@ -14,11 +14,11 @@ export interface StageEntry {
   date: string; // ISO string
 }
 
-export interface HistoryEvent {
-  event: "inspirations_linked" | "inspirations_unlinked";
-  count: number;
-  date: string; // ISO
-}
+export type HistoryEvent =
+  | { event: "inspirations_linked"; count: number; date: string }
+  | { event: "inspirations_unlinked"; count: number; date: string }
+  | { event: "moved_to_gallery"; date: string }
+  | { event: "returned_to_wip"; to: Stage; date: string };
 
 export interface Piece {
   id: string;

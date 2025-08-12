@@ -22,9 +22,41 @@ export function savePieces(pieces: Piece[]) {
 export function upsertPiece(piece: Piece) {
   const all = getPieces();
   const idx = all.findIndex((p) => p.id === piece.id);
-  if (idx >= 0) all[idx] = piece; else all.push(piece);
+  const prev = idx >= 0 ? all[idx] : undefined;
+
+  let updated: Piece = { ...piece };
+  if (prev) {
+    const prevStage = prev.current_stage;
+    const nextStage = piece.current_stage;
+    if (prevStage !== nextStage) {
+      const history = [...(prev.history ?? [])];
+      if (nextStage === "finished" && prevStage !== "finished") {
+        // Move to gallery: clear next checkpoint and log
+        updated = {
+          ...updated,
+          next_step: undefined,
+          next_reminder_at: null,
+          history: [...history, { event: "moved_to_gallery", date: new Date().toISOString() }],
+        };
+      } else if (prevStage === "finished" && nextStage !== "finished") {
+        // Return to WIP: log
+        updated = {
+          ...updated,
+          history: [...history, { event: "returned_to_wip", to: nextStage, date: new Date().toISOString() }],
+        };
+      } else {
+        updated = { ...updated, history };
+      }
+    } else {
+      // keep existing history
+      updated = { ...updated, history: prev.history };
+    }
+  }
+
+  if (idx >= 0) all[idx] = updated; else all.push(updated);
   savePieces(all);
 }
+
 
 export function getPieceById(id: string): Piece | undefined {
   return getPieces().find((p) => p.id === id);
