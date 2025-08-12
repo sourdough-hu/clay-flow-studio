@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getPieces, upsertPiece } from "@/lib/storage";
 import { suggestNextStep, stageOrder } from "@/lib/stage";
 import type { Piece } from "@/types";
+import { Plus } from "lucide-react";
 
 type RangeKey = "today" | "3" | "7" | "all";
 
@@ -156,19 +157,20 @@ const Tasks = () => {
 
 
 
-      <section aria-label="Filters" className="grid gap-3 sm:grid-cols-2">
-        <div className="flex items-center gap-2 rounded-md border p-1 w-full">
-          {rangeOptions.map((opt) => (
-            <Button
-              key={opt.key}
-              size="sm"
-              variant={range === opt.key ? "default" : "ghost"}
-              className="flex-1"
-              onClick={() => setRange(opt.key)}
-            >
-              {opt.label}
-            </Button>
-          ))}
+      <section aria-label="Filters" className="grid gap-3">
+        <div className="flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-md border p-1">
+            {rangeOptions.map((opt) => (
+              <Button
+                key={opt.key}
+                size="sm"
+                variant={range === opt.key ? "default" : "ghost"}
+                onClick={() => setRange(opt.key)}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Input
@@ -205,11 +207,12 @@ const Tasks = () => {
       <section aria-label="Upcoming" className="space-y-2 pb-8">
         <h2 className="text-sm font-medium text-muted-foreground">Upcoming</h2>
         {filteredUpcoming.length === 0 ? (
-          <Card>
-            <CardContent className="py-6 text-center text-sm text-muted-foreground">
-              No upcoming tasks — <Link to="/start-new" className="underline underline-offset-4 text-primary">Start something new</Link>.
-            </CardContent>
-          </Card>
+          <Link to="/start-new" className="block">
+            <Button variant="secondary" className="w-full h-11 justify-center rounded-lg text-secondary-foreground" aria-label="Add new">
+              <Plus className="h-5 w-5" aria-hidden="true" />
+              <span className="sr-only">Add new</span>
+            </Button>
+          </Link>
         ) : (
           <ul className="space-y-2">
             {filteredUpcoming.map((t) => (

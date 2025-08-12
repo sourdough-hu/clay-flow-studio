@@ -37,8 +37,6 @@ const Gallery = () => {
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Gallery" description="Browse your finished pieces in the gallery." />
-      <div className="flex items-center justify-end">
-      </div>
 
       <div className="grid grid-cols-1 gap-2">
         <Input placeholder="Search titles, notes, tags" value={q} onChange={(e) => setQ(e.target.value)} />
