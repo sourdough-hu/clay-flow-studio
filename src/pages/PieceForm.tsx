@@ -12,7 +12,14 @@ import { SEO } from "@/components/SEO";
 import CameraCapture from "@/components/CameraCapture";
 
 const sizes: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
-const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","finished"];
+const sizeTips: Record<SizeCategory, string> = {
+  Tiny: "Small plate",
+  Small: "Mug",
+  Medium: "Bowl",
+  Large: "Serving plate",
+  "Extra Large": "Large vase",
+};
+const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","decorating","finished"];
 
 const PieceForm = () => {
   const navigate = useNavigate();
@@ -61,13 +68,13 @@ const PieceForm = () => {
             <Select value={size} onValueChange={setSize}>
               <SelectTrigger><SelectValue placeholder="Size" /></SelectTrigger>
               <SelectContent>
-                {sizes.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+                {sizes.map((s) => (<SelectItem key={s} value={s} title={sizeTips[s]}>{s}</SelectItem>))}
               </SelectContent>
             </Select>
             <Select value={stage} onValueChange={(v) => setStage(v as Stage)}>
               <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
               <SelectContent>
-                {stages.map((s) => (<SelectItem key={s} value={s}>{s.replace("_"," ")}</SelectItem>))}
+                {stages.map((s) => (<SelectItem key={s} value={s}>{(s.replace("_"," ").charAt(0).toUpperCase() + s.replace("_"," ").slice(1))}</SelectItem>))}
               </SelectContent>
             </Select>
           </div>

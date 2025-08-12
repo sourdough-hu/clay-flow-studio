@@ -11,7 +11,7 @@ import { getPieceById, upsertPiece } from "@/lib/storage";
 import { Piece, SizeCategory, Stage } from "@/types";
 
 const sizes: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
-const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","finished"];
+const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","decorating","finished"];
 
 const PieceEditForm = () => {
   const { id } = useParams();
@@ -116,7 +116,7 @@ const PieceEditForm = () => {
             <Select value={size} onValueChange={setSize}>
               <SelectTrigger><SelectValue placeholder="Size" /></SelectTrigger>
               <SelectContent>
-                {sizes.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+                {sizes.map((s) => (<SelectItem key={s} value={s} title={sizeTips[s]}>{s}</SelectItem>))}
               </SelectContent>
             </Select>
             <Select value={stage} onValueChange={(v) => setStage(v as Stage)}>

@@ -36,10 +36,7 @@ function mapActionToType(action?: string): string {
 }
 
 function formatDueLabel(due: Date) {
-  const time = format(due, "HH:mm");
-  if (isToday(due)) return `Today ${time}`;
-  if (isTomorrow(due)) return `Tomorrow ${time}`;
-  return `${format(due, "EEE")} ${time}`;
+  return format(due, "PPP");
 }
 
 const Tasks = () => {

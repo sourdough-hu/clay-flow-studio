@@ -9,7 +9,7 @@ import { SEO } from "@/components/SEO";
 import GreetingHeader from "@/components/GreetingHeader";
 
 const sizeOptions: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
-const stageOptions: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing"]; // no finished here
+const stageOptions: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","decorating"]; // no finished here
 
 const Pieces = () => {
   const [q, setQ] = useState("");

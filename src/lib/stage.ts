@@ -8,6 +8,7 @@ export const stageOrder: Stage[] = [
   "bisque_firing",
   "glazing",
   "glaze_firing",
+  "decorating",
   "finished",
 ];
 
@@ -17,7 +18,8 @@ const nextMap: Record<Stage, { next: Stage | null; days?: number; note?: string 
   drying: { next: "bisque_firing" }, // when bone-dry; no default days
   bisque_firing: { next: "glazing", days: 2 },
   glazing: { next: "glaze_firing", days: 3 },
-  glaze_firing: { next: "finished" },
+  glaze_firing: { next: "decorating", days: 2 },
+  decorating: { next: "finished", days: 1 },
   finished: { next: null },
 };
 

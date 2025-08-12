@@ -7,6 +7,7 @@ export type Stage =
   | "bisque_firing"
   | "glazing"
   | "glaze_firing"
+  | "decorating"
   | "finished";
 
 export interface StageEntry {
