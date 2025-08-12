@@ -262,7 +262,7 @@ const Tasks = () => {
 function TaskRow({ item, onDone, onSnooze }: { item: { piece: Piece; due: Date; action: string; type: string }; onDone: () => void; onSnooze: () => void; }) {
   const thumb = item.piece.photos?.[0] || "/placeholder.svg";
   return (
-    <li className="rounded-md border bg-card">
+    <li className="rounded-md border bg-card text-card-foreground">
       <div className="flex items-center gap-3 p-3">
         <img
           src={thumb}
@@ -273,10 +273,10 @@ function TaskRow({ item, onDone, onSnooze }: { item: { piece: Piece; due: Date; 
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between">
             <div className="truncate">
-              <p className="text-sm font-medium text-foreground truncate">{item.type} — {item.piece.title}</p>
-              <p className="text-sm text-muted-foreground truncate">{item.action}</p>
+              <p className="text-sm font-medium text-card-foreground truncate">{item.type} — {item.piece.title}</p>
+              <p className="text-sm text-card-foreground/80 truncate">{item.action}</p>
             </div>
-            <div className="ml-3 shrink-0 text-sm font-medium text-muted-foreground">{formatDueLabel(item.due)}</div>
+            <div className="ml-3 shrink-0 text-sm font-medium text-card-foreground/80">{formatDueLabel(item.due)}</div>
           </div>
         </div>
       </div>

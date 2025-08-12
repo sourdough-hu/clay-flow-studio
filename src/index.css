@@ -134,4 +134,10 @@
   .badge-accent-2 { background-color: hsl(var(--accent-2)); color: hsl(var(--text-on-dark)); border: 1px solid hsl(var(--border)); }
   .nav-active { color: hsl(var(--accent-2)); }
   .nav-inactive { color: hsl(var(--muted-foreground)); }
+  /* Context-aware foreground defaults for dark/light surfaces */
+  .bg-card { color: hsl(var(--card-foreground)); }
+  .bg-popover { color: hsl(var(--popover-foreground)); }
+  .bg-secondary { color: hsl(var(--secondary-foreground)); }
+  .bg-muted { color: hsl(var(--muted-foreground)); }
 }
+

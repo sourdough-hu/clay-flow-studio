@@ -24,7 +24,7 @@ const Index = () => {
 
       <section className="px-4 pt-6">
         <h1 className="text-3xl font-semibold tracking-tight">Upcoming Tasks</h1>
-        <div className="mt-4 rounded-xl border bg-card max-h-[50vh] overflow-y-auto">
+        <div className="mt-4 rounded-xl border bg-card text-card-foreground max-h-[50vh] overflow-y-auto">
           {tasks.length === 0 ? (
             <div className="p-4 text-sm text-muted-foreground">No upcoming tasks.</div>
           ) : (
@@ -48,7 +48,7 @@ const Index = () => {
                       />
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{piece?.title || t.title}</p>
-                        <p className="text-sm text-muted-foreground truncate">{stage} • {date}</p>
+                        <p className="text-sm text-card-foreground/80 truncate">{stage} • {date}</p>
                       </div>
                     </button>
                   </li>

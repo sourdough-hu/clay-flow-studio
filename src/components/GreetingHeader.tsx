@@ -33,7 +33,7 @@ export const GreetingHeader = ({ title }: GreetingHeaderProps) => {
 
   return (
     <div
-      className="rounded-xl overflow-hidden border bg-card"
+      className="rounded-xl overflow-hidden border bg-card text-card-foreground"
       aria-label="Decorative ceramic background"
       style={{
         backgroundImage: `linear-gradient(to bottom, hsl(var(--card) / 0.9), hsl(var(--card) / 0.95)), url(${heroImage})`,
@@ -42,8 +42,8 @@ export const GreetingHeader = ({ title }: GreetingHeaderProps) => {
       }}
     >
       <div className="p-5">
-        <p className="text-sm text-muted-foreground">{greeting}</p>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+        <p className="text-sm text-card-foreground/80">{greeting}</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-card-foreground">{title}</h1>
       </div>
     </div>
   );
