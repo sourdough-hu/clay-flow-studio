@@ -34,7 +34,7 @@ const Index = () => {
       </header>
 
       <section className="px-4 grid grid-cols-2 gap-3">
-        <Card className="aspect-square group cursor-pointer" onClick={() => navigate(tasks[0] ? `/piece/${tasks[0].piece_id}` : '/pieces')}>
+        <Card className="aspect-square group cursor-pointer" onClick={() => navigate("/tasks")}>
           <CardHeader>
             <CardTitle className="text-base">Upcoming Tasks</CardTitle>
           </CardHeader>
