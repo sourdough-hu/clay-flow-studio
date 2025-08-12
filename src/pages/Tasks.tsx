@@ -274,9 +274,9 @@ function TaskRow({ item, onDone, onSnooze }: { item: { piece: Piece; due: Date; 
           <div className="flex items-center justify-between">
             <div className="truncate">
               <p className="text-sm font-medium text-foreground truncate">{item.type} — {item.piece.title}</p>
-              <p className="text-xs text-muted-foreground truncate">{item.action}</p>
+              <p className="text-sm text-muted-foreground truncate">{item.action}</p>
             </div>
-            <div className="ml-3 shrink-0 text-xs font-medium text-muted-foreground">{formatDueLabel(item.due)}</div>
+            <div className="ml-3 shrink-0 text-sm font-medium text-muted-foreground">{formatDueLabel(item.due)}</div>
           </div>
         </div>
       </div>

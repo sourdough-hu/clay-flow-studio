@@ -3,7 +3,7 @@ import { Home, ListTodo, Box, Images, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const BottomNav = () => {
-  const baseLink = "flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs font-medium transition-colors";
+  const baseLink = "flex flex-col items-center justify-center gap-1 px-3 py-2 text-sm font-medium transition-colors";
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60"

@@ -17,38 +17,49 @@
     --color-surface-2: 47 19% 38%;/* #726A4E */
     --color-highlight: 69 76% 73%;/* #DFEF87 */
 
+    /* Readability tokens */
+    --text-on-dark: 0 0% 100%;
+    --text-on-mid: 0 0% 100%;
+    --text-on-light: 12 21% 14%;
+
+    --border-on-light: 47 19% 73%;
+    --border-on-dark: 10 12% 38%;
+
+    --primary-hover: 42 15% 60%;
+    --primary-press: 40 13% 49%;
+
     /* App surfaces */
     --background: var(--color-highlight);
-    --foreground: 11 23% 20%;
+    --foreground: var(--text-on-light);
 
     --card: var(--color-surface);
-    --card-foreground: 0 0% 98%;
+    --card-foreground: var(--text-on-dark);
 
     --popover: var(--color-surface);
-    --popover-foreground: 0 0% 98%;
+    --popover-foreground: var(--text-on-dark);
 
     /* Brand */
     --primary: var(--color-primary);
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: var(--text-on-dark);
 
     /* Secondary/surface-2 */
     --secondary: var(--color-surface-2);
-    --secondary-foreground: 0 0% 98%;
+    --secondary-foreground: var(--text-on-mid);
 
     --muted: var(--color-surface-2);
-    --muted-foreground: 0 0% 90%;
+    --muted-foreground: 0 0% 35%;
 
     /* Accents for badges */
     --accent: var(--color-accent-1);
-    --accent-foreground: 0 0% 98%;
+    --accent-foreground: var(--text-on-dark);
     --accent-1: var(--color-accent-1);
     --accent-2: var(--color-accent-2);
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: var(--text-on-dark);
 
-    --border: 47 19% 45%;
-    --input: 47 19% 45%;
+    --border: var(--border-on-light);
+    --input: var(--border-on-light);
     --ring: var(--color-primary);
 
     --radius: 0.75rem;
@@ -70,31 +81,31 @@
 
   .dark {
     --background: var(--color-surface);
-    --foreground: 0 0% 96%;
+    --foreground: var(--text-on-dark);
 
     --card: var(--color-surface-2);
-    --card-foreground: 0 0% 98%;
+    --card-foreground: var(--text-on-dark);
 
     --popover: var(--color-surface-2);
-    --popover-foreground: 0 0% 98%;
+    --popover-foreground: var(--text-on-dark);
 
     --primary: var(--color-primary);
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: var(--text-on-dark);
 
     --secondary: var(--color-surface);
-    --secondary-foreground: 0 0% 96%;
+    --secondary-foreground: var(--text-on-dark);
 
     --muted: var(--color-surface);
     --muted-foreground: 0 0% 80%;
 
     --accent: var(--color-accent-2);
-    --accent-foreground: 0 0% 100%;
+    --accent-foreground: var(--text-on-dark);
 
     --destructive: 0 74% 54%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: var(--text-on-dark);
 
-    --border: 11 23% 30%;
-    --input: 11 23% 30%;
+    --border: var(--border-on-dark);
+    --input: var(--border-on-dark);
     --ring: var(--color-primary);
 
     --sidebar-background: var(--color-surface);
@@ -110,11 +121,15 @@
 
 @layer base {
   * { @apply border-border; }
-  body { @apply bg-background text-foreground; font-family: var(--font-sans); }
+  body { @apply bg-background text-foreground leading-relaxed; font-family: var(--font-sans); }
+  h1 { @apply text-3xl; }
+  h2 { @apply text-2xl; }
+  h3 { @apply text-xl; }
+  input::placeholder, textarea::placeholder { color: hsl(var(--muted-foreground)); }
 }
 
 @layer components {
   .bg-ceramic-gradient { background-image: var(--gradient-ceramic); }
-  .badge-accent-1 { background-color: hsl(var(--accent-1)); color: hsl(var(--primary-foreground)); }
-  .badge-accent-2 { background-color: hsl(var(--accent-2)); color: hsl(var(--primary-foreground)); }
+  .badge-accent-1 { background-color: hsl(var(--accent-1)); color: hsl(var(--text-on-dark)); border: 1px solid hsl(var(--border)); }
+  .badge-accent-2 { background-color: hsl(var(--accent-2)); color: hsl(var(--text-on-dark)); border: 1px solid hsl(var(--border)); }
 }
