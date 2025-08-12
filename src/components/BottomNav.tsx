@@ -55,7 +55,7 @@ const BottomNav = () => {
             aria-label="Inspirations"
           >
             <Lightbulb className="h-5 w-5" aria-hidden="true" />
-            <span>Ideas</span>
+            <span>Inspirations</span>
           </NavLink>
         </li>
       </ul>
