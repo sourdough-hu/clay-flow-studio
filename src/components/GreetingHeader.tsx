@@ -25,9 +25,8 @@ export const GreetingHeader = ({ title }: GreetingHeaderProps) => {
   const user = getLocalUser();
   const guest = getGuestName();
   let greeting = "Hi there.";
-  if (user) {
-    const display = user.display_name?.trim() || (user.email ? user.email.split("@")[0] : "");
-    if (display) greeting = `Hi ${display}`;
+  if (user?.display_name && user.display_name.trim()) {
+    greeting = `Hi ${user.display_name.trim()}`;
   } else if (guest) {
     greeting = `Hi ${guest}`;
   }
