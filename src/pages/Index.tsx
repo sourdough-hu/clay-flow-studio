@@ -34,7 +34,7 @@ const Index = () => {
       </header>
 
       <section className="px-4 grid grid-cols-2 gap-3">
-        <Card className="aspect-square group cursor-pointer overflow-hidden" onClick={() => navigate("/tasks")}>
+        <Card className="aspect-[4/5] group cursor-pointer overflow-hidden" onClick={() => navigate("/tasks")}>
           <CardHeader>
             <CardTitle className="text-base">Upcoming Tasks</CardTitle>
           </CardHeader>
@@ -54,7 +54,7 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        <Card className="aspect-square group cursor-pointer overflow-hidden" onClick={() => navigate("/start-new")}>
+        <Card className="aspect-[4/5] group cursor-pointer overflow-hidden" onClick={() => navigate("/start-new")}>
           <CardHeader>
             <CardTitle className="text-base">Start Something New</CardTitle>
           </CardHeader>
