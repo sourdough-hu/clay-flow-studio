@@ -21,29 +21,17 @@ const Inspirations = () => {
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground">No inspirations yet.</p>
         ) : (
-          items.map((ins) => (
-            <Link to={`/inspiration/${ins.id}`} key={ins.id} className="block">
-              <Card>
-                {(ins.photos?.[0] || ins.image_url) && (
-                  <img src={ins.photos?.[0] ?? ins.image_url!} alt={ins.note ? `${ins.note.slice(0,40)} thumbnail` : "Inspiration thumbnail"} className="w-full aspect-video object-cover rounded-t-lg border-b" />
-                )}
-                <CardHeader>
-                  <CardTitle className="text-base">{ins.note?.slice(0, 60) || "Untitled"}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 text-sm text-muted-foreground space-y-2">
-                  <div className="flex items-center justify-between">
-                    {ins.link_url && (
-                      <span className="underline underline-offset-4 text-primary">Has link</span>
-                    )}
-                    <span className="text-xs">Linked pieces: <span className="font-medium text-foreground">{getPiecesForInspiration(ins.id).length}</span></span>
-                  </div>
-                  {ins.tags && ins.tags.length > 0 && (
-                    <div>Tags: <span className="text-foreground font-medium">{ins.tags.join(", ")}</span></div>
+          <div className="columns-2 gap-3 [column-fill:_balance]">
+            {items.map((ins) => (
+              <Link to={`/inspiration/${ins.id}`} key={ins.id} className="block mb-3 break-inside-avoid">
+                <Card>
+                  {(ins.photos?.[0] || ins.image_url) && (
+                    <img src={ins.photos?.[0] ?? ins.image_url!} alt={ins.note ? `${ins.note.slice(0,40)} thumbnail` : "Inspiration thumbnail"} className="w-full object-cover rounded-lg" loading="lazy" />
                   )}
-                </CardContent>
-              </Card>
-            </Link>
-          ))
+                </Card>
+              </Link>
+            ))}
+          </div>
         )}
       </section>
     </main>

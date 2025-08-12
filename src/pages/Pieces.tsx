@@ -31,9 +31,9 @@ const Pieces = () => {
 
   return (
     <main className="min-h-screen p-4 space-y-4">
-      <SEO title="Pottery Tracker — Work in Progress" description="Track works in progress. Thumbnails, stage, and next checkpoint." />
+      <SEO title="Pottery Tracker — Making" description="Track works in progress. Thumbnails, stage, and next checkpoint." />
       <header className="pb-2">
-        <GreetingHeader title="Work in Progress" />
+        <GreetingHeader title="Making" />
       </header>
       <div className="flex items-center justify-end">
         <Link to="/new/piece" className="text-sm underline underline-offset-4 text-primary">New Piece</Link>
@@ -47,7 +47,7 @@ const Pieces = () => {
             <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
             <SelectContent>
               {stageOptions.map((s) => (
-                <SelectItem key={s} value={s}>{s.replace("_"," ")}</SelectItem>
+                <SelectItem key={s} value={s}>{(s.replace("_"," ").charAt(0).toUpperCase() + s.replace("_"," ").slice(1))}</SelectItem>
               ))}
             </SelectContent>
           </Select>

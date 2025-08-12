@@ -40,10 +40,10 @@ const BottomNav = () => {
             className={({ isActive }) =>
               cn(baseLink, "w-full h-16", isActive ? "text-primary" : "text-muted-foreground")
             }
-            aria-label="Work in Progress"
+            aria-label="Making"
           >
             <Box className="h-5 w-5" aria-hidden="true" />
-            <span>Work in Progress</span>
+            <span>Making</span>
           </NavLink>
         </li>
         <li className="flex items-stretch">

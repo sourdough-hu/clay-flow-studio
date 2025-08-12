@@ -25,6 +25,7 @@ const InspirationDetail = () => {
       : (inspiration?.image_url ? [inspiration.image_url] : [])
   );
   const [selectedPieceIds, setSelectedPieceIds] = useState<string[]>(linkedPieces.map((p) => p.id));
+  const [isEditing, setIsEditing] = useState(false);
 
   if (!inspiration) return <main className="p-4">Inspiration not found.</main>;
 
@@ -59,7 +60,16 @@ const InspirationDetail = () => {
       <SEO title={`Pottery Tracker — Inspiration`} description={inspiration.note?.slice(0, 100) || "Inspiration detail"} />
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Inspiration</h1>
-        <Button variant="hero" onClick={onSave}>Save</Button>
+        <div className="flex gap-2">
+          {isEditing ? (
+            <>
+              <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+              <Button variant="hero" onClick={onSave}>Save</Button>
+            </>
+          ) : (
+            <Button variant="hero" onClick={() => setIsEditing(true)}>Edit</Button>
+          )}
+        </div>
       </div>
 
       <Card>
@@ -67,13 +77,15 @@ const InspirationDetail = () => {
           <CardTitle className="text-base">Photos</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <CameraCapture label="Add photo" value={null} onChange={setThumb} />
+          {isEditing && <CameraCapture label="Add photo" value={null} onChange={setThumb} />}
           {photos.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
               {photos.map((src, i) => (
                 <div key={i} className="space-y-1">
                   <img src={src} alt={`Inspiration photo ${i+1}`} className="w-full rounded-md border object-cover" />
-                  <Button variant="outline" size="sm" onClick={() => removePhoto(i)}>Delete</Button>
+                  {isEditing && (
+                    <Button variant="outline" size="sm" onClick={() => removePhoto(i)}>Delete</Button>
+                  )}
                 </div>
               ))}
             </div>
@@ -86,8 +98,17 @@ const InspirationDetail = () => {
           <CardTitle className="text-base">Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Input placeholder="Tags (comma separated)" value={tags} onChange={(e) => setTags(e.target.value)} />
-          <Textarea placeholder="Notes" value={note} onChange={(e) => setNote(e.target.value)} />
+          {isEditing ? (
+            <>
+              <Input placeholder="Tags (comma separated)" value={tags} onChange={(e) => setTags(e.target.value)} />
+              <Textarea placeholder="Notes" value={note} onChange={(e) => setNote(e.target.value)} />
+            </>
+          ) : (
+            <>
+              {tags && <div className="text-sm">Tags: <span className="text-foreground font-medium">{tags}</span></div>}
+              {note && <p className="text-sm text-muted-foreground whitespace-pre-wrap">{note}</p>}
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -96,27 +117,29 @@ const InspirationDetail = () => {
           <CardTitle className="text-base">Linked Pieces</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 gap-2">
-            {allPieces.map((p: Piece) => (
-              <label key={p.id} className="flex items-center gap-3 text-sm">
-                <input type="checkbox" checked={selectedPieceIds.includes(p.id)} onChange={() => togglePiece(p.id)} />
-                <div className="flex items-center gap-2">
-                  {p.photos && p.photos[0] && (
-                    <img src={p.photos[0]} alt={`${p.title} thumbnail`} className="w-10 h-10 rounded object-cover border" />
-                  )}
-                  <span className="text-foreground">{p.title}</span>
-                </div>
-              </label>
-            ))}
-          </div>
+          {isEditing ? (
+            <div className="grid grid-cols-1 gap-2">
+              {allPieces.map((p: Piece) => (
+                <label key={p.id} className="flex items-center gap-3 text-sm">
+                  <input type="checkbox" checked={selectedPieceIds.includes(p.id)} onChange={() => togglePiece(p.id)} />
+                  <div className="flex items-center gap-2">
+                    {p.photos && p.photos[0] && (
+                      <img src={p.photos[0]} alt={`${p.title} thumbnail`} className="w-10 h-10 rounded object-cover border" />
+                    )}
+                    <span className="text-foreground">{p.title}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          ) : null}
 
           {linkedPieces.length > 0 && (
             <div className="mt-2">
               <div className="text-sm font-medium mb-2">Currently linked</div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 gap-3">
                 {linkedPieces.map((p) => (
                   <Link to={`/piece/${p.id}`} key={p.id} className="block">
-                    <img src={p.photos?.[0] ?? "/placeholder.svg"} alt={`${p.title} thumbnail`} className="w-full aspect-square object-cover rounded border" />
+                    <img src={p.photos?.[0] ?? "/placeholder.svg"} alt={`${p.title} thumbnail`} className="w-full aspect-video object-cover rounded border" />
                   </Link>
                 ))}
               </div>

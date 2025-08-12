@@ -19,7 +19,7 @@ const PieceEditForm = () => {
   const piece = useMemo(() => (id ? getPieceById(id) : undefined), [id]);
 
   const [title, setTitle] = useState(piece?.title ?? "");
-  const [photo, setPhoto] = useState<string | null>(piece?.photos?.[0] ?? null);
+  const [photos, setPhotos] = useState<string[]>(piece?.photos ?? []);
   const [size, setSize] = useState<string>(piece?.size_category ?? "");
   const [stage, setStage] = useState<Stage>(piece?.current_stage ?? "throwing");
   const [location, setLocation] = useState(piece?.storage_location ?? "");
@@ -35,7 +35,7 @@ const PieceEditForm = () => {
     const updated: Piece = {
       ...piece,
       title: title.trim() || piece.title,
-      photos: photo ? [photo] : [],
+      photos: photos,
       size_category: (size || undefined) as SizeCategory | undefined,
       current_stage: stage,
       storage_location: location || undefined,
@@ -53,16 +53,56 @@ const PieceEditForm = () => {
     <main className="min-h-screen p-4 space-y-4">
       <SEO title={`Pottery Tracker — Edit ${piece.title}`} description={`Edit piece details for ${piece.title}.`} />
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Edit Piece</h1>
+        <h1 className="text-xl font-semibold">{title || piece.title}</h1>
         <Button variant="hero" onClick={onSave}>Save</Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Thumbnail</CardTitle>
+          <CardTitle className="text-base">Photos</CardTitle>
         </CardHeader>
-        <CardContent>
-          <CameraCapture value={photo} onChange={setPhoto} />
+        <CardContent className="space-y-3">
+          {photos.length > 0 && (
+            <div className="grid grid-cols-3 gap-2">
+              {photos.map((src, idx) => (
+                <div key={idx} className="space-y-2">
+                  <img src={src} alt={`${title || piece.title} photo ${idx + 1}`} className="w-full aspect-square object-cover rounded-md border" />
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        setPhotos((prev) => {
+                          const copy = [...prev];
+                          const [chosen] = copy.splice(idx, 1);
+                          return [chosen, ...copy];
+                        });
+                      }}
+                    >
+                      Set as thumbnail
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPhotos((prev) => prev.filter((_, i) => i !== idx))}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <CameraCapture
+            value={null}
+            onChange={(data) => {
+              if (!data) return;
+              setPhotos((prev) => [data, ...prev]);
+            }}
+            label="+ Add Photo"
+          />
         </CardContent>
       </Card>
 
@@ -82,7 +122,7 @@ const PieceEditForm = () => {
             <Select value={stage} onValueChange={(v) => setStage(v as Stage)}>
               <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
               <SelectContent>
-                {stages.map((s) => (<SelectItem key={s} value={s}>{s.replace("_"," ")}</SelectItem>))}
+                {stages.map((s) => (<SelectItem key={s} value={s}>{(s.replace("_"," ").charAt(0).toUpperCase() + s.replace("_"," ").slice(1))}</SelectItem>))}
               </SelectContent>
             </Select>
           </div>

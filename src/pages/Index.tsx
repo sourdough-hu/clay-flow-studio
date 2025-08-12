@@ -54,7 +54,7 @@ const Index = () => {
         <Link to="/pieces" className="block">
           <Card className="group hover:translate-y-[-1px] transition-transform">
             <CardHeader>
-              <CardTitle>Work in Progress</CardTitle>
+              <CardTitle>Making</CardTitle>
             </CardHeader>
           </Card>
         </Link>

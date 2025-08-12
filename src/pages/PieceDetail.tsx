@@ -1,11 +1,15 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getPieceById, upsertPiece, getInspirationsForPiece } from "@/lib/storage";
-import { advanceStage } from "@/lib/stage";
+import { advanceStage, stageOrder } from "@/lib/stage";
 import { SEO } from "@/components/SEO";
 import CameraCapture from "@/components/CameraCapture";
+import { Stage } from "@/types";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const PieceDetail = () => {
   const { id } = useParams();
@@ -20,6 +24,11 @@ const PieceDetail = () => {
     navigate(0);
   };
 
+  const [showAdjust, setShowAdjust] = useState(false);
+  const nextIdx = Math.min(stageOrder.indexOf(piece.current_stage) + 1, stageOrder.length - 1);
+  const defaultStage = stageOrder[nextIdx] ?? piece.current_stage;
+  const [adjStage, setAdjStage] = useState<Stage>(defaultStage);
+  const [adjDate, setAdjDate] = useState<string>(piece.next_reminder_at ? new Date(piece.next_reminder_at).toISOString().slice(0,10) : "");
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title={`Pottery — ${piece.title}`} description={`Current stage: ${piece.current_stage}`} />
@@ -36,7 +45,7 @@ const PieceDetail = () => {
           <CardTitle className="text-base">Overview</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
-          <div>Stage: <span className="font-medium text-foreground">{piece.current_stage.replace("_"," ")}</span></div>
+          <div>Stage: <span className="font-medium text-foreground">{(() => { const s = piece.current_stage.replace("_"," "); return s.charAt(0).toUpperCase() + s.slice(1); })()}</span></div>
           {piece.storage_location && <div>Location: <span className="font-medium text-foreground">{piece.storage_location}</span></div>}
           {piece.tags && piece.tags.length > 0 && (
             <div>Tags: <span className="font-medium text-foreground">{piece.tags.join(", ")}</span></div>
@@ -45,7 +54,7 @@ const PieceDetail = () => {
             <div>Next: <span className="font-medium text-foreground">{piece.next_step}</span></div>
           )}
           {piece.next_reminder_at && (
-            <div>Reminder: <span className="font-medium text-foreground">{new Date(piece.next_reminder_at).toLocaleString()}</span></div>
+            <div>Reminder: <span className="font-medium text-foreground">{new Date(piece.next_reminder_at).toLocaleDateString()}</span></div>
           )}
           {(piece.notes || piece.technique_notes) && (
             <div className="space-y-2">
@@ -67,19 +76,56 @@ const PieceDetail = () => {
           )}
 
           {piece.current_stage !== "finished" && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button variant="hero" onClick={onAdvance}>Mark stage complete</Button>
-              <Button variant="outline" onClick={() => {
-                const next = window.prompt("Next step (e.g., move to bisque firing):", piece.next_step ?? "");
-                if (next === null) return;
-                const d = window.prompt("Reminder date (YYYY-MM-DD, blank for none):", piece.next_reminder_at ? new Date(piece.next_reminder_at).toISOString().slice(0,10) : "");
-                const nextDate = d ? new Date(d) : null;
-                const updated = { ...piece, next_step: next || undefined, next_reminder_at: nextDate ? nextDate.toISOString() : null };
-                upsertPiece(updated);
-                navigate(0);
-              }}>Adjust Next Checkpoint</Button>
+              <Button variant="outline" onClick={() => setShowAdjust(true)}>Adjust Next Checkpoint</Button>
             </div>
           )}
+
+          {/* Adjust Next Checkpoint Dialog */}
+          <Dialog open={showAdjust} onOpenChange={setShowAdjust}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Adjust Next Checkpoint</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-3 pt-2">
+                <div className="grid grid-cols-1 gap-2">
+                  <div>
+                    <div className="mb-1 text-sm font-medium">Stage</div>
+                    <Select value={adjStage} onValueChange={(v) => setAdjStage(v as Stage)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select stage" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {stageOrder.map((s) => (
+                          <SelectItem key={s} value={s}>{(s.replace("_"," ").charAt(0).toUpperCase() + s.replace("_"," ").slice(1))}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <div className="mb-1 text-sm font-medium">Date</div>
+                    <Input type="date" value={adjDate} onChange={(e) => setAdjDate(e.target.value)} />
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowAdjust(false)}>Cancel</Button>
+                <Button
+                  onClick={() => {
+                    const nextStep = adjStage ? `Move to ${adjStage.replace("_", " ")}` : undefined;
+                    const date = adjDate ? new Date(adjDate) : null;
+                    const updated = { ...piece, next_step: nextStep, next_reminder_at: date ? date.toISOString() : null };
+                    upsertPiece(updated);
+                    setShowAdjust(false);
+                    navigate(0);
+                  }}
+                >
+                  Save
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
 
@@ -144,13 +190,13 @@ const PieceDetail = () => {
             <CardTitle className="text-base">Inspirations</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-2">
-              {getInspirationsForPiece(piece.id).map((i) => (
-                <Link key={i.id} to={`/inspiration/${i.id}`} className="block">
-                  <img src={i.photos?.[0] ?? i.image_url ?? "/placeholder.svg"} alt={i.note ? `${i.note.slice(0,40)} thumbnail` : "Inspiration thumbnail"} className="w-full aspect-square object-cover rounded-md border" />
-                </Link>
-              ))}
-            </div>
+              <div className="grid grid-cols-1 gap-3">
+                {getInspirationsForPiece(piece.id).map((i) => (
+                  <Link key={i.id} to={`/inspiration/${i.id}`} className="block">
+                    <img src={i.photos?.[0] ?? i.image_url ?? "/placeholder.svg"} alt={i.note ? `${i.note.slice(0,40)} thumbnail` : "Inspiration thumbnail"} className="w-full aspect-video object-cover rounded-md border" />
+                  </Link>
+                ))}
+              </div>
           </CardContent>
         </Card>
       )}
