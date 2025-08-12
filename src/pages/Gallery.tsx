@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { getPieces } from "@/lib/storage";
 import { Piece, SizeCategory } from "@/types";
 import { SEO } from "@/components/SEO";
@@ -60,7 +62,12 @@ const Gallery = () => {
           </Select>
         </div>
       </div>
-
+      <Link to="/new/piece?stage=finished" className="block">
+        <Button variant="secondary" className="w-full h-11 justify-center rounded-lg text-secondary-foreground" aria-label="Add new">
+          <Plus className="h-5 w-5" aria-hidden="true" />
+          <span className="sr-only">Add new</span>
+        </Button>
+      </Link>
       <section className="space-y-3 pb-8">
         {filtered.length === 0 ? (
           <p className="text-sm text-muted-foreground">No finished pieces yet — complete a piece to see it here.</p>

@@ -2,16 +2,20 @@ import { getInspirations, getPiecesForInspiration } from "@/lib/storage";
 import { SEO } from "@/components/SEO";
 
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 const Inspirations = () => {
   const items = getInspirations();
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Inspirations" description="Browse your inspiration library." />
-      <div className="flex items-center justify-end">
-        <Link to="/new/inspiration" className="text-sm underline underline-offset-4 text-primary">New</Link>
-      </div>
+<Link to="/new/inspiration" className="block">
+  <Button variant="secondary" className="w-full h-11 justify-center rounded-lg text-secondary-foreground" aria-label="Add new">
+    <Plus className="h-5 w-5" aria-hidden="true" />
+    <span className="sr-only">Add new</span>
+  </Button>
+</Link>
 
 
       <section className="space-y-3 pb-8">

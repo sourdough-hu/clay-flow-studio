@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPieces } from "@/lib/storage";
 import { Piece, SizeCategory, Stage } from "@/types";
 import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 
 const sizeOptions: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
@@ -32,9 +34,6 @@ const Pieces = () => {
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Making" description="Track works in progress. Thumbnails, stage, and next checkpoint." />
-      <div className="flex items-center justify-end">
-        <Link to="/new/piece" className="text-sm underline underline-offset-4 text-primary">New Piece</Link>
-      </div>
 
 
       <div className="grid grid-cols-1 gap-2">
@@ -58,7 +57,12 @@ const Pieces = () => {
           </Select>
         </div>
       </div>
-
+      <Link to="/new/piece" className="block">
+        <Button variant="secondary" className="w-full h-11 justify-center rounded-lg text-secondary-foreground" aria-label="Add new">
+          <Plus className="h-5 w-5" aria-hidden="true" />
+          <span className="sr-only">Add new</span>
+        </Button>
+      </Link>
       <section className="space-y-3 pb-8">
         {filtered.length === 0 ? (
           <p className="text-sm text-muted-foreground">No pieces in progress — start something new.</p>

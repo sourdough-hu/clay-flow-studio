@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,10 +23,15 @@ const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing
 
 const PieceForm = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [title, setTitle] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
   const [size, setSize] = useState<string>("");
-  const [stage, setStage] = useState<Stage>("throwing");
+  const [stage, setStage] = useState<Stage>(() => {
+    const s = (searchParams.get("stage") || "").toLowerCase();
+    const allowed = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","decorating","finished"] as const;
+    return (allowed as readonly string[]).includes(s) ? (s as Stage) : "throwing";
+  });
   const [location, setLocation] = useState("");
   const [tags, setTags] = useState("");
   const [notes, setNotes] = useState("");
