@@ -54,7 +54,14 @@ const Index = () => {
         <Link to="/pieces" className="block">
           <Card className="group hover:translate-y-[-1px] transition-transform">
             <CardHeader>
-              <CardTitle>All Pieces</CardTitle>
+              <CardTitle>Work in Progress</CardTitle>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/gallery" className="block">
+          <Card className="group hover:translate-y-[-1px] transition-transform">
+            <CardHeader>
+              <CardTitle>Gallery</CardTitle>
             </CardHeader>
           </Card>
         </Link>

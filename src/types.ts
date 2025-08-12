@@ -31,6 +31,7 @@ export interface Piece {
   notes?: string;
   tags?: string[];
   technique_notes?: string;
+  description?: string;
   next_step?: string;
   next_reminder_at?: string | null; // ISO or null
   stage_history?: StageEntry[];
