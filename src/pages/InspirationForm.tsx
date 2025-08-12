@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Inspiration, Piece } from "@/types";
 import { addInspiration, getPieces } from "@/lib/storage";
 import { SEO } from "@/components/SEO";
+import CameraCapture from "@/components/CameraCapture";
 
 function scoreMatch(inspTags: string[], piece: Piece): number {
   const pTags = new Set((piece.tags ?? []).map((t) => t.toLowerCase()));
@@ -18,7 +19,7 @@ function scoreMatch(inspTags: string[], piece: Piece): number {
 
 const InspirationForm = () => {
   const navigate = useNavigate();
-  const [imageUrl, setImageUrl] = useState("");
+  const [photo, setPhoto] = useState<string | null>(null);
   const [linkUrl, setLinkUrl] = useState("");
   const [note, setNote] = useState("");
   const [tags, setTags] = useState("");
@@ -38,7 +39,8 @@ const InspirationForm = () => {
     const id = (crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2));
     const item: Inspiration = {
       id,
-      image_url: imageUrl || undefined,
+      image_url: photo || undefined,
+      photos: photo ? [photo] : undefined,
       link_url: linkUrl || undefined,
       note: note || undefined,
       tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
@@ -58,7 +60,7 @@ const InspirationForm = () => {
           <CardTitle className="text-base">Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Input placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+          <CameraCapture label="Add photo" value={photo} onChange={setPhoto} />
           <Input placeholder="Link URL" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} />
           <Input placeholder="Tags (comma separated)" value={tags} onChange={(e) => setTags(e.target.value)} />
           <Textarea placeholder="Note" value={note} onChange={(e) => setNote(e.target.value)} />

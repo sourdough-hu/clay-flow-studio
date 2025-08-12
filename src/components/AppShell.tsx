@@ -8,8 +8,10 @@ import Tasks from "@/pages/Tasks";
 import Pieces from "@/pages/Pieces";
 import PieceForm from "@/pages/PieceForm";
 import PieceDetail from "@/pages/PieceDetail";
+import PieceEditForm from "@/pages/PieceEditForm";
 import Inspirations from "@/pages/Inspirations";
 import InspirationForm from "@/pages/InspirationForm";
+import InspirationDetail from "@/pages/InspirationDetail";
 import Account from "@/pages/Account";
 import StartNew from "@/pages/StartNew";
 import Onboarding from "@/pages/Onboarding";
@@ -32,8 +34,10 @@ const AppShell = () => {
           <Route path="/pieces" element={<Pieces />} />
           <Route path="/new/piece" element={<PieceForm />} />
           <Route path="/piece/:id" element={<PieceDetail />} />
+          <Route path="/edit/piece/:id" element={<PieceEditForm />} />
           <Route path="/inspirations" element={<Inspirations />} />
           <Route path="/new/inspiration" element={<InspirationForm />} />
+          <Route path="/inspiration/:id" element={<InspirationDetail />} />
           <Route path="/account" element={<Account />} />
           <Route path="/start-new" element={<StartNew />} />
           <Route path="*" element={<NotFound />} />

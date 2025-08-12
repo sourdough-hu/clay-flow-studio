@@ -9,6 +9,7 @@ import { Piece, SizeCategory, Stage } from "@/types";
 import { upsertPiece } from "@/lib/storage";
 import { suggestNextStep } from "@/lib/stage";
 import { SEO } from "@/components/SEO";
+import CameraCapture from "@/components/CameraCapture";
 
 const sizes: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
 const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","finished"];
@@ -16,7 +17,7 @@ const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing
 const PieceForm = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
-  const [photos, setPhotos] = useState("");
+  const [photo, setPhoto] = useState<string | null>(null);
   const [size, setSize] = useState<string>("");
   const [stage, setStage] = useState<Stage>("throwing");
   const [location, setLocation] = useState("");
@@ -30,7 +31,7 @@ const PieceForm = () => {
     const piece: Piece = {
       id,
       title: title.trim(),
-      photos: photos.split(",").map((s) => s.trim()).filter(Boolean),
+      photos: photo ? [photo] : [],
       start_date: new Date().toISOString(),
       size_category: (size || undefined) as SizeCategory | undefined,
       current_stage: stage,
@@ -55,7 +56,7 @@ const PieceForm = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <Input placeholder="Title (required)" value={title} onChange={(e) => setTitle(e.target.value)} />
-          <Input placeholder="Photo URLs (comma separated)" value={photos} onChange={(e) => setPhotos(e.target.value)} />
+          <CameraCapture label="Add photo" value={photo} onChange={setPhoto} />
           <div className="grid grid-cols-2 gap-2">
             <Select value={size} onValueChange={setSize}>
               <SelectTrigger><SelectValue placeholder="Size" /></SelectTrigger>

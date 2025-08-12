@@ -1,4 +1,4 @@
-import { getInspirations } from "@/lib/storage";
+import { getInspirations, getPiecesForInspiration } from "@/lib/storage";
 import { SEO } from "@/components/SEO";
 import GreetingHeader from "@/components/GreetingHeader";
 import { Link } from "react-router-dom";
@@ -22,22 +22,27 @@ const Inspirations = () => {
           <p className="text-sm text-muted-foreground">No inspirations yet.</p>
         ) : (
           items.map((ins) => (
-            <Card key={ins.id}>
-              <CardHeader>
-                <CardTitle className="text-base">{ins.note?.slice(0, 60) || "Untitled"}</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 text-sm text-muted-foreground space-y-2">
-                {ins.image_url && (
-                  <img src={ins.image_url} alt="Pottery inspiration image" loading="lazy" className="w-full rounded-md border" />
+            <Link to={`/inspiration/${ins.id}`} key={ins.id} className="block">
+              <Card>
+                {(ins.photos?.[0] || ins.image_url) && (
+                  <img src={ins.photos?.[0] ?? ins.image_url!} alt={ins.note ? `${ins.note.slice(0,40)} thumbnail` : "Inspiration thumbnail"} className="w-full aspect-video object-cover rounded-t-lg border-b" />
                 )}
-                {ins.link_url && (
-                  <a href={ins.link_url} target="_blank" rel="noreferrer" className="underline underline-offset-4 text-primary">Open link</a>
-                )}
-                {ins.tags && ins.tags.length > 0 && (
-                  <div>Tags: <span className="text-foreground font-medium">{ins.tags.join(", ")}</span></div>
-                )}
-              </CardContent>
-            </Card>
+                <CardHeader>
+                  <CardTitle className="text-base">{ins.note?.slice(0, 60) || "Untitled"}</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 text-sm text-muted-foreground space-y-2">
+                  <div className="flex items-center justify-between">
+                    {ins.link_url && (
+                      <span className="underline underline-offset-4 text-primary">Has link</span>
+                    )}
+                    <span className="text-xs">Linked pieces: <span className="font-medium text-foreground">{getPiecesForInspiration(ins.id).length}</span></span>
+                  </div>
+                  {ins.tags && ins.tags.length > 0 && (
+                    <div>Tags: <span className="text-foreground font-medium">{ins.tags.join(", ")}</span></div>
+                  )}
+                </CardContent>
+              </Card>
+            </Link>
           ))
         )}
       </section>

@@ -30,7 +30,7 @@ const Pieces = () => {
 
   return (
     <main className="min-h-screen p-4 space-y-4">
-      <SEO title="Pottery Tracker — Pieces" description="Browse and filter your pottery pieces." />
+      <SEO title="Pottery Tracker — Pieces" description="Browse and filter your pottery pieces. Thumbnails and key info." />
       <header className="pb-2">
         <GreetingHeader title="Pieces" />
       </header>
@@ -68,6 +68,9 @@ const Pieces = () => {
           filtered.map((p) => (
             <Link to={`/piece/${p.id}`} key={p.id} className="block">
               <Card>
+                {p.photos?.[0] && (
+                  <img src={p.photos[0]} alt={`${p.title} thumbnail`} loading="lazy" className="w-full aspect-video object-cover rounded-t-lg border-b" />
+                )}
                 <CardHeader>
                   <CardTitle className="text-lg">{p.title}</CardTitle>
                 </CardHeader>

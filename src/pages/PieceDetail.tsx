@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getPieceById, upsertPiece } from "@/lib/storage";
+import { getPieceById, upsertPiece, getInspirationsForPiece } from "@/lib/storage";
 import { advanceStage } from "@/lib/stage";
 import { SEO } from "@/components/SEO";
 
@@ -24,7 +24,10 @@ const PieceDetail = () => {
       <SEO title={`Pottery — ${piece.title}`} description={`Current stage: ${piece.current_stage}`} />
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">{piece.title}</h1>
-        <span className="text-sm text-muted-foreground">{piece.size_category}</span>
+        <div className="flex items-center gap-2">
+          {piece.size_category && <span className="text-sm text-muted-foreground">{piece.size_category}</span>}
+          <Link to={`/edit/piece/${piece.id}`} className="text-sm underline underline-offset-4 text-primary">Edit Piece</Link>
+        </div>
       </div>
 
       <Card>
@@ -63,10 +66,39 @@ const PieceDetail = () => {
           )}
 
           {piece.current_stage !== "finished" && (
-            <Button variant="hero" onClick={onAdvance}>Mark stage complete</Button>
+            <div className="flex items-center gap-2">
+              <Button variant="hero" onClick={onAdvance}>Mark stage complete</Button>
+              <Button variant="outline" onClick={() => {
+                const next = window.prompt("Next step (e.g., move to bisque firing):", piece.next_step ?? "");
+                if (next === null) return;
+                const d = window.prompt("Reminder date (YYYY-MM-DD, blank for none):", piece.next_reminder_at ? new Date(piece.next_reminder_at).toISOString().slice(0,10) : "");
+                const nextDate = d ? new Date(d) : null;
+                const updated = { ...piece, next_step: next || undefined, next_reminder_at: nextDate ? nextDate.toISOString() : null };
+                upsertPiece(updated);
+                navigate(0);
+              }}>Adjust Next Checkpoint</Button>
+            </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Inspirations section */}
+      {getInspirationsForPiece(piece.id).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Inspirations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-2">
+              {getInspirationsForPiece(piece.id).map((i) => (
+                <Link key={i.id} to={`/inspiration/${i.id}`} className="block">
+                  <img src={i.photos?.[0] ?? i.image_url ?? "/placeholder.svg"} alt={i.note ? `${i.note.slice(0,40)} thumbnail` : "Inspiration thumbnail"} className="w-full aspect-square object-cover rounded-md border" />
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </main>
   );
 };

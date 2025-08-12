@@ -14,10 +14,16 @@ export interface StageEntry {
   date: string; // ISO string
 }
 
+export interface HistoryEvent {
+  event: "inspirations_linked" | "inspirations_unlinked";
+  count: number;
+  date: string; // ISO
+}
+
 export interface Piece {
   id: string;
   title: string;
-  photos: string[];
+  photos: string[]; // data URLs or http(s) URLs; first item is thumbnail
   start_date?: string; // ISO
   size_category?: SizeCategory;
   current_stage: Stage;
@@ -28,15 +34,24 @@ export interface Piece {
   next_step?: string;
   next_reminder_at?: string | null; // ISO or null
   stage_history?: StageEntry[];
+  history?: HistoryEvent[];
 }
 
 export interface Inspiration {
   id: string;
-  image_url?: string;
+  image_url?: string; // kept for backward compatibility (thumbnail)
+  photos?: string[]; // multiple photos; first one is thumbnail
   link_url?: string;
   note?: string;
   tags?: string[];
-  linked_piece_id?: string | null;
+  linked_piece_id?: string | null; // legacy single link
+  created_at: string; // ISO
+}
+
+export interface PieceInspirationLink {
+  id: string;
+  piece_id: string;
+  inspiration_id: string;
   created_at: string; // ISO
 }
 
