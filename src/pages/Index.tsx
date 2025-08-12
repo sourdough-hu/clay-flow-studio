@@ -54,13 +54,12 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        <Card className="aspect-square">
+        <Card className="aspect-square group cursor-pointer" onClick={() => navigate("/start-new")}>
           <CardHeader>
             <CardTitle className="text-base">Start Something New</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0 flex flex-col gap-2">
-            <Button variant="hero" onClick={() => navigate("/new/piece")}>Log New Piece</Button>
-            <Button variant="outline" onClick={() => navigate("/new/inspiration")}>Log Inspiration</Button>
+          <CardContent className="pt-0">
+            <p className="text-sm text-muted-foreground">Open quick create</p>
           </CardContent>
         </Card>
       </section>
