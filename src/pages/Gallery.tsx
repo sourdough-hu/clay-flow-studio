@@ -38,7 +38,6 @@ const Gallery = () => {
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Gallery" description="Browse your finished pieces in the gallery." />
       <div className="flex items-center justify-end">
-        <Link to="/pieces" className="text-sm underline underline-offset-4 text-primary">Work in Progress</Link>
       </div>
 
       <div className="grid grid-cols-1 gap-2">
