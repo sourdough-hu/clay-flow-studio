@@ -11,6 +11,13 @@ import { getPieceById, upsertPiece } from "@/lib/storage";
 import { Piece, SizeCategory, Stage } from "@/types";
 
 const sizes: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
+const sizeTips: Record<SizeCategory, string> = {
+  Tiny: "Small plate",
+  Small: "Mug",
+  Medium: "Bowl",
+  Large: "Serving plate",
+  "Extra Large": "Large vase",
+};
 const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","decorating","finished"];
 
 const PieceEditForm = () => {
@@ -122,7 +129,9 @@ const PieceEditForm = () => {
             <Select value={stage} onValueChange={(v) => setStage(v as Stage)}>
               <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
               <SelectContent>
-                {stages.map((s) => (<SelectItem key={s} value={s}>{(s.replace("_"," ").charAt(0).toUpperCase() + s.replace("_"," ").slice(1))}</SelectItem>))}
+                {stages.map((s) => (
+                  <SelectItem key={s} value={s}>{s.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase())}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
