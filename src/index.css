@@ -10,23 +10,23 @@
     --font-serif: "Noto Serif JP", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
     /* Base palette tokens (HSL) */
-    --color-primary: 43 16% 56%; /* #A1977D */
-    --color-accent-1: 50 54% 39%; /* #9B892F */
-    --color-accent-2: 9 73% 50%;  /* #DD4124 */
-    --color-surface: 11 23% 24%;  /* #4B342F */
-    --color-surface-2: 47 19% 38%;/* #726A4E */
-    --color-highlight: 69 76% 73%;/* #DFEF87 */
+    --color-primary: 230 28% 54%; /* muted periwinkle */
+    --color-accent-1: 174 35% 40%; /* soft teal */
+    --color-accent-2: 14 77% 55%;  /* coral */
+    --color-surface: 230 23% 18%;  /* deep ink */
+    --color-surface-2: 230 15% 26%;/* slate */
+    --color-highlight: 48 60% 96%;/* warm paper */
 
     /* Readability tokens */
     --text-on-dark: 0 0% 100%;
     --text-on-mid: 0 0% 100%;
-    --text-on-light: 12 21% 14%;
+    --text-on-light: 230 30% 14%;
 
-    --border-on-light: 47 19% 73%;
-    --border-on-dark: 10 12% 38%;
+    --border-on-light: 230 15% 80%;
+    --border-on-dark: 230 15% 35%;
 
-    --primary-hover: 42 15% 60%;
-    --primary-press: 40 13% 49%;
+    --primary-hover: 230 28% 60%;
+    --primary-press: 230 28% 46%;
 
     /* App surfaces */
     --background: var(--color-highlight);
