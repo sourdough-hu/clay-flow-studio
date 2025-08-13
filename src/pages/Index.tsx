@@ -14,6 +14,16 @@ const Index = () => {
     const label = s.replace(/_/g, " ");
     return label.charAt(0).toUpperCase() + label.slice(1);
   };
+  const hasUserOrGuest = () => {
+    try {
+      const u = localStorage.getItem("pt_user");
+      const g = localStorage.getItem("pt_guest_name");
+      return Boolean(u || g);
+    } catch {
+      return false;
+    }
+  };
+  const showAuthLink = !hasUserOrGuest();
 
   return (
     <main className="min-h-screen bg-background">
@@ -24,6 +34,11 @@ const Index = () => {
 
       <section className="px-4 pt-6">
         <h1 className="text-3xl font-semibold tracking-tight">Upcoming Tasks</h1>
+        {showAuthLink && (
+          <div className="mt-2">
+            <Link to="/auth" className="text-sm underline text-primary">Sign in or create an account</Link>
+          </div>
+        )}
         <div className="mt-4 rounded-xl border bg-card text-card-foreground max-h-[50vh] overflow-y-auto">
           {tasks.length === 0 ? (
             <div className="p-4 text-sm text-muted-foreground">No upcoming tasks.</div>

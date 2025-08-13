@@ -16,7 +16,7 @@ export const OnboardingGate = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const allowList = ["/onboarding", "/account"];
+    const allowList = ["/onboarding", "/account", "/auth"];
     const has = hasUserOrGuest();
     const atOnboarding = location.pathname === "/onboarding";
 

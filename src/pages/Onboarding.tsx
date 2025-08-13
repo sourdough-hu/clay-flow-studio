@@ -27,7 +27,7 @@ const Onboarding = () => {
   };
 
   const goAccount = () => {
-    navigate("/account");
+    navigate("/auth");
   };
 
   return (
@@ -58,10 +58,10 @@ const Onboarding = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Create an account</CardTitle>
+            <CardTitle className="text-base">Sign in or create an account</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <Button size="lg" onClick={goAccount}>Go to Account</Button>
+            <Button size="lg" onClick={goAccount}>Continue to sign in</Button>
           </CardContent>
         </Card>
       </section>

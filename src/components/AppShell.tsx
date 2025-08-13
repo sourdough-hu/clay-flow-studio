@@ -17,6 +17,8 @@ import StartNew from "@/pages/StartNew";
 import Onboarding from "@/pages/Onboarding";
 import NotFound from "@/pages/NotFound";
 import Gallery from "@/pages/Gallery";
+import Auth from "@/pages/Auth";
+import SupabaseSessionSync from "@/components/SupabaseSessionSync";
 
 const AppShell = () => {
   const location = useLocation();
@@ -30,6 +32,7 @@ const AppShell = () => {
         <ReminderChecker />
         <Routes>
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<Index />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/pieces" element={<Pieces />} />
