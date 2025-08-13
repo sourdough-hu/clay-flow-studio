@@ -10,33 +10,33 @@
     --font-serif: "Noto Serif JP", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
     /* Base palette tokens (HSL) */
-    --color-primary: 230 28% 54%; /* muted periwinkle */
-    --color-accent-1: 174 35% 40%; /* soft teal */
-    --color-accent-2: 14 77% 55%;  /* coral */
-    --color-surface: 230 23% 18%;  /* deep ink */
-    --color-surface-2: 230 15% 26%;/* slate */
-    --color-highlight: 48 60% 96%;/* warm paper */
+    --color-primary: 90 22% 36%; /* matcha green */
+    --color-accent-1: 90 22% 36%; /* matcha */
+    --color-accent-2: 14 60% 50%; /* terracotta */
+    --color-surface: 48 30% 97%;  /* light paper surface */
+    --color-surface-2: 48 20% 92%;/* subtle warm slate */
+    --color-highlight: 48 30% 96%;/* warm paper */
 
     /* Readability tokens */
     --text-on-dark: 0 0% 100%;
-    --text-on-mid: 0 0% 100%;
-    --text-on-light: 230 30% 14%;
+    --text-on-mid: 230 30% 20%;
+    --text-on-light: 230 25% 16%;
 
-    --border-on-light: 230 15% 80%;
+    --border-on-light: 48 15% 85%;
     --border-on-dark: 230 15% 35%;
 
-    --primary-hover: 230 28% 60%;
-    --primary-press: 230 28% 46%;
+    --primary-hover: 90 22% 42%;
+    --primary-press: 90 22% 30%;
 
     /* App surfaces */
     --background: var(--color-highlight);
     --foreground: var(--text-on-light);
 
     --card: var(--color-surface);
-    --card-foreground: var(--text-on-dark);
+    --card-foreground: var(--text-on-light);
 
     --popover: var(--color-surface);
-    --popover-foreground: var(--text-on-dark);
+    --popover-foreground: var(--text-on-light);
 
     /* Brand */
     --primary: var(--color-primary);
@@ -75,27 +75,27 @@
     --sidebar-ring: var(--color-primary);
 
     /* Gradients & Shadows */
-    --gradient-ceramic: linear-gradient(135deg, hsl(var(--primary) / 0.98), hsl(var(--primary) / 0.85));
-    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.25);
+    --gradient-ceramic: linear-gradient(180deg, hsl(var(--primary) / 0.04), hsl(var(--primary) / 0.06));
+    --shadow-elegant: 0 8px 24px -12px hsl(var(--primary) / 0.18);
   }
 
   .dark {
-    --background: var(--color-surface);
+    --background: 230 23% 12%;
     --foreground: var(--text-on-dark);
 
-    --card: var(--color-surface-2);
+    --card: 230 23% 16%;
     --card-foreground: var(--text-on-dark);
 
-    --popover: var(--color-surface-2);
+    --popover: 230 23% 16%;
     --popover-foreground: var(--text-on-dark);
 
     --primary: var(--color-primary);
     --primary-foreground: var(--text-on-dark);
 
-    --secondary: var(--color-surface);
+    --secondary: 230 15% 20%;
     --secondary-foreground: var(--text-on-dark);
 
-    --muted: var(--color-surface);
+    --muted: 230 15% 18%;
     --muted-foreground: 0 0% 80%;
 
     --accent: var(--color-accent-2);
@@ -104,15 +104,15 @@
     --destructive: 0 74% 54%;
     --destructive-foreground: var(--text-on-dark);
 
-    --border: var(--border-on-dark);
-    --input: var(--border-on-dark);
+    --border: 230 15% 30%;
+    --input: 230 15% 30%;
     --ring: var(--color-primary);
 
-    --sidebar-background: var(--color-surface);
+    --sidebar-background: 230 23% 12%;
     --sidebar-foreground: 0 0% 96%;
     --sidebar-primary: var(--color-primary);
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: var(--color-surface-2);
+    --sidebar-accent: 230 23% 16%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 11 23% 30%;
     --sidebar-ring: var(--color-primary);
@@ -122,9 +122,9 @@
 @layer base {
   * { @apply border-border; }
   body { @apply bg-background text-foreground leading-relaxed; font-family: var(--font-sans); }
-  h1 { @apply text-3xl; }
-  h2 { @apply text-2xl; }
-  h3 { @apply text-xl; }
+  h1 { @apply text-3xl; font-family: var(--font-serif); font-weight: 600; }
+  h2 { @apply text-2xl; font-family: var(--font-serif); font-weight: 600; }
+  h3 { @apply text-xl; font-family: var(--font-serif); font-weight: 600; }
   input::placeholder, textarea::placeholder { color: hsl(var(--muted-foreground)); }
 }
 
