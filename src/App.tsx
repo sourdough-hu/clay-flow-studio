@@ -18,7 +18,9 @@ import BottomNav from "./components/BottomNav";
 import TopAppBar from "./components/TopAppBar";
 import Onboarding from "./pages/Onboarding";
 import OnboardingGate from "./components/OnboardingGate";
+import ForgotPassword from "./pages/ForgotPassword";
 import AppShell from "./components/AppShell";
+import SupabaseSessionSync from "./components/SupabaseSessionSync";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <SupabaseSessionSync />
       <BrowserRouter>
         <AppShell />
       </BrowserRouter>

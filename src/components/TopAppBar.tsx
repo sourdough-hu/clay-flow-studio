@@ -1,26 +1,82 @@
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 const TopAppBar = () => {
-  const name = (() => {
-    try {
-      return localStorage.getItem("pt_guest_name") || "Guest";
-    } catch {
-      return "Guest";
-    }
-  })();
+  const [userInfo, setUserInfo] = useState<{
+    name: string;
+    avatarUrl?: string;
+    isAuthenticated: boolean;
+  }>({ name: "Guest", isAuthenticated: false });
+
+  useEffect(() => {
+    const loadUserInfo = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          // User is authenticated, get profile data
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("display_name, avatar_url")
+            .eq("user_id", session.user.id)
+            .single();
+          
+          const name = profile?.display_name || 
+            session.user.email?.split("@")[0] || 
+            "User";
+          
+          setUserInfo({
+            name,
+            avatarUrl: profile?.avatar_url || undefined,
+            isAuthenticated: true
+          });
+        } else {
+          // Check for guest name
+          const guestName = localStorage.getItem("pt_guest_name");
+          setUserInfo({
+            name: guestName || "Guest",
+            isAuthenticated: false
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load user info:", error);
+        setUserInfo({ name: "Guest", isAuthenticated: false });
+      }
+    };
+
+    loadUserInfo();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      loadUserInfo();
+    });
+
+    // Listen for localStorage changes (for guest name updates)
+    const handleStorageChange = () => {
+      loadUserInfo();
+    };
+    
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 max-w-screen-sm items-center justify-between px-4">
-        <NavLink to="/account" aria-label="Account" className="flex items-center gap-2">
+        <NavLink to={userInfo.isAuthenticated ? "/account" : "/auth"} aria-label="Account" className="flex items-center gap-2">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder.svg" alt={`${name} profile avatar`} />
-            <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
+            <AvatarImage src={userInfo.avatarUrl} alt={`${userInfo.name} profile avatar`} />
+            <AvatarFallback>{userInfo.name.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium text-foreground">{name}</span>
+          <span className="text-sm font-medium text-foreground">{userInfo.name}</span>
         </NavLink>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
