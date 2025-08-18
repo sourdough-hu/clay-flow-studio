@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FilterBottomSheet, FilterValue } from "@/components/FilterBottomSheet";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -45,6 +46,7 @@ const Tasks = () => {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("All");
   const [range, setRange] = useState<RangeKey>("7");
+  const [activeFilters, setActiveFilters] = useState<FilterValue[]>([]);
 
   const [pieces, setPieces] = useState<Piece[]>(() => getPieces());
 
@@ -71,8 +73,25 @@ const Tasks = () => {
     if (typeFilter !== "All") {
       o = o.filter((t) => t.type === typeFilter);
     }
+    // Apply active filters
+    if (activeFilters.length > 0) {
+      o = o.filter((t) => {
+        return activeFilters.every(filter => {
+          switch (filter.type) {
+            case "stage":
+              return t.piece.current_stage === filter.value;
+            case "size":
+              return t.piece.size_category === filter.value;
+            case "clayType":
+              return t.piece.clay_type === filter.value;
+            default:
+              return true;
+          }
+        });
+      });
+    }
     return o;
-  }, [allTasks, now, query, typeFilter]);
+  }, [allTasks, now, query, typeFilter, activeFilters]);
 
   const filteredUpcoming = useMemo(() => {
     let upcoming = allTasks.filter((t) => t.due >= now);
@@ -97,8 +116,25 @@ const Tasks = () => {
     if (typeFilter !== "All") {
       upcoming = upcoming.filter((t) => t.type === typeFilter);
     }
+    // Apply active filters
+    if (activeFilters.length > 0) {
+      upcoming = upcoming.filter((t) => {
+        return activeFilters.every(filter => {
+          switch (filter.type) {
+            case "stage":
+              return t.piece.current_stage === filter.value;
+            case "size":
+              return t.piece.size_category === filter.value;
+            case "clayType":
+              return t.piece.clay_type === filter.value;
+            default:
+              return true;
+          }
+        });
+      });
+    }
     return upcoming;
-  }, [allTasks, now, query, range, typeFilter]);
+  }, [allTasks, now, query, range, typeFilter, activeFilters]);
 
   // Dialog state for advancing stage
   const [open, setOpen] = useState(false);
@@ -191,6 +227,7 @@ const Tasks = () => {
             </SelectContent>
           </Select>
         </div>
+        <FilterBottomSheet activeFilters={activeFilters} onFiltersChange={setActiveFilters} />
       </section>
 
       {overdue.length > 0 && (
@@ -207,12 +244,21 @@ const Tasks = () => {
       <section aria-label="Upcoming" className="space-y-2 pb-8">
         <h2 className="text-sm font-medium text-muted-foreground">Upcoming</h2>
         {filteredUpcoming.length === 0 ? (
-          <Link to="/start-new" className="block">
-            <Button variant="secondary" className="w-full h-11 justify-center rounded-lg text-secondary-foreground" aria-label="Add new">
-              <Plus className="h-5 w-5" aria-hidden="true" />
-              <span className="sr-only">Add new</span>
-            </Button>
-          </Link>
+          <div className="space-y-3">
+            <Link to="/start-new" className="block">
+              <Button variant="secondary" className="w-full h-11 justify-center rounded-lg text-secondary-foreground" aria-label="Add new">
+                <Plus className="h-5 w-5" aria-hidden="true" />
+                <span className="sr-only">Add new</span>
+              </Button>
+            </Link>
+            {activeFilters.length > 0 && (
+              <div className="text-center">
+                <Button variant="outline" size="sm" onClick={() => setActiveFilters([])}>
+                  Clear all filters
+                </Button>
+              </div>
+            )}
+          </div>
         ) : (
           <ul className="space-y-2">
             {filteredUpcoming.map((t) => (

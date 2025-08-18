@@ -1,63 +1,55 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { getPieces } from "@/lib/storage";
-import { Piece, SizeCategory } from "@/types";
+import { Piece } from "@/types";
 import { SEO } from "@/components/SEO";
+import { FilterBottomSheet, FilterValue } from "@/components/FilterBottomSheet";
 
-
-const sizeOptions: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
 
 const Gallery = () => {
   const [q, setQ] = useState("");
-  const [size, setSize] = useState<string>("");
-  const [tag, setTag] = useState<string>("");
+  const [activeFilters, setActiveFilters] = useState<FilterValue[]>([]);
 
   const finished = useMemo(() => {
-    const items = getPieces().filter((p) => p.current_stage === "finished");
-    const uniqueTags = Array.from(new Set(items.flatMap((p) => p.tags ?? []))).sort();
-    return { items, uniqueTags };
+    return getPieces().filter((p) => p.current_stage === "finished");
   }, []);
 
   const filtered = useMemo(() => {
-    return finished.items.filter((p) => {
+    return finished.filter((p) => {
+      // Search filter
       const matchQ = q
         ? (p.title + " " + (p.notes ?? "") + " " + (p.tags ?? []).join(",")).toLowerCase().includes(q.toLowerCase())
         : true;
-      const matchSize = size ? p.size_category === size : true;
-      const matchTag = tag ? (p.tags ?? []).includes(tag) : true;
-      return matchQ && matchSize && matchTag;
+      
+      // Active filters
+      const matchFilters = activeFilters.every(filter => {
+        switch (filter.type) {
+          case "stage":
+            return p.current_stage === filter.value;
+          case "size":
+            return p.size_category === filter.value;
+          case "clayType":
+            return p.clay_type === filter.value;
+          default:
+            return true;
+        }
+      });
+      
+      return matchQ && matchFilters;
     });
-  }, [q, size, tag, finished.items]);
+  }, [q, activeFilters, finished]);
 
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Gallery" description="Browse your finished pieces in the gallery." />
 
-      <div className="grid grid-cols-1 gap-2">
+      <div className="space-y-4">
         <Input placeholder="Search titles, notes, tags" value={q} onChange={(e) => setQ(e.target.value)} />
-        <div className="grid grid-cols-2 gap-2">
-          <Select onValueChange={setSize} value={size}>
-            <SelectTrigger><SelectValue placeholder="Size" /></SelectTrigger>
-            <SelectContent>
-              {sizeOptions.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select onValueChange={setTag} value={tag}>
-            <SelectTrigger><SelectValue placeholder="Tag" /></SelectTrigger>
-            <SelectContent>
-              {finished.uniqueTags.map((t) => (
-                <SelectItem key={t} value={t}>{t}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <FilterBottomSheet activeFilters={activeFilters} onFiltersChange={setActiveFilters} />
       </div>
       <Link to="/new/piece?stage=finished" className="block">
         <Button variant="secondary" className="w-full h-11 justify-center rounded-lg text-secondary-foreground" aria-label="Add new">
@@ -67,7 +59,16 @@ const Gallery = () => {
       </Link>
       <section className="space-y-3 pb-8">
         {filtered.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No finished pieces yet — complete a piece to see it here.</p>
+          <div className="text-center py-8 space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {activeFilters.length > 0 ? "No pieces match your filters." : "No finished pieces yet — complete a piece to see it here."}
+            </p>
+            {activeFilters.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => setActiveFilters([])}>
+                Clear all filters
+              </Button>
+            )}
+          </div>
         ) : (
           filtered.map((p) => (
             <Link to={`/piece/${p.id}`} key={p.id} className="block">
