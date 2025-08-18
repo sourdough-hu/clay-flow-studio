@@ -76,7 +76,7 @@ export function FilterBottomSheet({ activeFilters, onFiltersChange, hideStage = 
 
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button variant="outline" className="w-full flex items-center gap-2">
             <Filter className="h-4 w-4" />
             Filters
             {activeFilters.length > 0 && (
