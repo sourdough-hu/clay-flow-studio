@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CreditCard, Bell, LogOut, Camera, User, Crown, ExternalLink, RotateCcw } from "lucide-react";
+import { CreditCard, Bell, LogOut, Camera, User, Crown, ExternalLink, RotateCcw, Mail, Star, MessageSquare } from "lucide-react";
 import { subscriptionService, type SubscriptionData } from "@/services/subscriptionService";
 import SubscriptionBottomSheet from "./SubscriptionBottomSheet";
 
@@ -433,6 +433,60 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
                   setProfile(prev => ({ ...prev, notifications_enabled: checked }))
                 }
               />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Contact the Developers Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              <h3 className="font-medium">Contact the Developers</h3>
+            </div>
+            
+            <div className="space-y-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-muted-foreground"
+                onClick={() => {
+                  const subject = encodeURIComponent("I have a piece of feedback");
+                  const body = encodeURIComponent("Hi team,\n\nI'd like to share some feedback:\n\n");
+                  window.location.href = `mailto:HelloPotteryPal@gmail.com?subject=${subject}&body=${body}`;
+                }}
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Email us
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-muted-foreground"
+                onClick={async () => {
+                  if (subscriptionService.isIOS()) {
+                    try {
+                      // Try iOS in-app review first
+                      if ((window as any).StoreKit) {
+                        await (window as any).StoreKit.requestReview();
+                      } else {
+                        // Fallback to App Store URL
+                        window.open("https://apps.apple.com/app/idYOUR_APP_ID?action=write-review", "_blank");
+                      }
+                    } catch (error) {
+                      // Fallback to App Store URL
+                      window.open("https://apps.apple.com/app/idYOUR_APP_ID?action=write-review", "_blank");
+                    }
+                  } else {
+                    // Web fallback
+                    window.open("https://apps.apple.com/app/idYOUR_APP_ID?action=write-review", "_blank");
+                  }
+                }}
+              >
+                <Star className="w-4 h-4 mr-2" />
+                Leave a Review
+              </Button>
             </div>
           </div>
 
