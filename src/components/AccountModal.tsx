@@ -1,15 +1,24 @@
 import { useState, useEffect } from "react";
-import { X, User, MapPin, CreditCard, Bell, LogOut, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { CreditCard, Bell, LogOut, Camera, User, Crown, ExternalLink, RotateCcw } from "lucide-react";
+import { subscriptionService, type SubscriptionData } from "@/services/subscriptionService";
+import SubscriptionBottomSheet from "./SubscriptionBottomSheet";
 
 interface AccountModalProps {
   open: boolean;
@@ -23,24 +32,29 @@ interface ProfileData {
   avatar_url?: string;
 }
 
-export function AccountModal({ open, onOpenChange }: AccountModalProps) {
-  const [profile, setProfile] = useState<ProfileData>({
+interface ExtendedProfileData extends ProfileData {
+  subscription: SubscriptionData;
+}
+
+export default function AccountModal({ open, onOpenChange }: AccountModalProps) {
+  const [profile, setProfile] = useState<ExtendedProfileData>({
     display_name: "",
     address: "",
     notifications_enabled: true,
+    subscription: { plan: 'free', subscriptionStatus: 'expired' },
   });
-  const [originalProfile, setOriginalProfile] = useState<ProfileData>({
+  const [originalProfile, setOriginalProfile] = useState<ExtendedProfileData>({
     display_name: "",
     address: "",
     notifications_enabled: true,
+    subscription: { plan: 'free', subscriptionStatus: 'expired' },
   });
-  const [email, setEmail] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isDirty, setIsDirty] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [hasChanges, setHasChanges] = useState(false);
   const [displayNameError, setDisplayNameError] = useState("");
+  const [subscriptionBottomSheetOpen, setSubscriptionBottomSheetOpen] = useState(false);
+  const [isLoadingRestore, setIsLoadingRestore] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (open) {
@@ -49,11 +63,11 @@ export function AccountModal({ open, onOpenChange }: AccountModalProps) {
   }, [open]);
 
   useEffect(() => {
-    const hasChanges = 
+    const profileHasChanges = 
       profile.display_name !== originalProfile.display_name ||
       profile.address !== originalProfile.address ||
       profile.notifications_enabled !== originalProfile.notifications_enabled;
-    setIsDirty(hasChanges);
+    setHasChanges(profileHasChanges);
   }, [profile, originalProfile]);
 
   const loadUserData = async () => {
@@ -61,52 +75,43 @@ export function AccountModal({ open, onOpenChange }: AccountModalProps) {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
-        setIsAuthenticated(true);
-        setEmail(session.user.email || "");
-        
+        setUser(session.user);
+
+        // Load subscription data
+        const subscriptionData = await subscriptionService.loadUserSubscription();
+
         // Try to get existing profile
         const { data: existingProfile } = await supabase
           .from("profiles")
-          .select("display_name, avatar_url, address, notifications_enabled")
+          .select("display_name, avatar_url, address, notifications_enabled, plan, store, original_transaction_id, latest_expiration_at, subscription_status")
           .eq("user_id", session.user.id)
           .single();
 
-        const profileData: ProfileData = {
+        const userProfile = {
           display_name: existingProfile?.display_name || 
             session.user.email?.split("@")[0] || 
             "",
           address: existingProfile?.address || "",
           notifications_enabled: existingProfile?.notifications_enabled ?? true,
           avatar_url: existingProfile?.avatar_url,
+          subscription: subscriptionData,
         };
 
-        setProfile(profileData);
-        setOriginalProfile(profileData);
+        setProfile(userProfile);
+        setOriginalProfile(userProfile);
       } else {
-        // Guest user
-        setIsAuthenticated(false);
-        setEmail("");
-        
-        const guestName = localStorage.getItem("pt_guest_name") || "";
-        const guestAddress = localStorage.getItem("pt_guest_address") || "";
-        const guestNotifications = localStorage.getItem("pt_guest_notifications") !== "false";
-        
-        const guestProfile: ProfileData = {
-          display_name: guestName,
-          address: guestAddress,
-          notifications_enabled: guestNotifications,
+        // Guest user - load from localStorage
+        const guestProfile = {
+          display_name: localStorage.getItem("guest_display_name") || "",
+          address: localStorage.getItem("guest_address") || "",
+          notifications_enabled: localStorage.getItem("guest_notifications") === "true",
+          subscription: { plan: 'free' as const, subscriptionStatus: 'expired' as const },
         };
-        
         setProfile(guestProfile);
         setOriginalProfile(guestProfile);
       }
     } catch (error) {
       console.error("Failed to load user data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load account data",
-        variant: "destructive",
-      });
     }
   };
 
@@ -120,20 +125,14 @@ export function AccountModal({ open, onOpenChange }: AccountModalProps) {
     return true;
   };
 
-  const handleDisplayNameChange = (value: string) => {
-    setProfile(prev => ({ ...prev, display_name: value }));
-    validateDisplayName(value);
-  };
-
   const handleSave = async () => {
     if (!validateDisplayName(profile.display_name)) {
       return;
     }
 
-    setIsLoading(true);
     try {
-      if (isAuthenticated) {
-        // Save to Supabase
+      if (user) {
+        // Authenticated user - save to Supabase
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) throw new Error("Not authenticated");
 
@@ -148,26 +147,24 @@ export function AccountModal({ open, onOpenChange }: AccountModalProps) {
 
         if (error) throw error;
       } else {
-        // Save guest data to localStorage
-        localStorage.setItem("pt_guest_name", profile.display_name.trim());
-        localStorage.setItem("pt_guest_address", profile.address);
-        localStorage.setItem("pt_guest_notifications", profile.notifications_enabled.toString());
+        // Guest user - save to localStorage
+        localStorage.setItem("guest_display_name", profile.display_name.trim());
+        localStorage.setItem("guest_address", profile.address);
+        localStorage.setItem("guest_notifications", profile.notifications_enabled.toString());
       }
 
       setOriginalProfile({ ...profile });
       toast({
-        title: "Success",
-        description: "Account updated successfully",
+        title: "Saved",
+        description: "Your changes have been saved.",
       });
     } catch (error) {
       console.error("Failed to save profile:", error);
       toast({
-        title: "Error",
-        description: "Failed to save changes",
+        title: "Failed to save",
+        description: "Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -175,110 +172,176 @@ export function AccountModal({ open, onOpenChange }: AccountModalProps) {
     try {
       await supabase.auth.signOut();
       
-      // Clear localStorage
-      localStorage.removeItem("pt_guest_name");
-      localStorage.removeItem("pt_guest_address");
-      localStorage.removeItem("pt_guest_notifications");
+      // Clear localStorage on sign out
+      localStorage.removeItem("userData");
+      localStorage.removeItem("guest_display_name");
+      localStorage.removeItem("guest_address");
+      localStorage.removeItem("guest_notifications");
       
       onOpenChange(false);
-      navigate("/onboarding");
+      
+      // Navigate to onboarding or welcome screen
+      window.location.href = "/onboarding";
     } catch (error) {
       console.error("Sign out error:", error);
       toast({
-        title: "Error",
-        description: "Failed to sign out",
+        title: "Sign out failed",
+        description: "Please try again.",
         variant: "destructive",
       });
     }
   };
 
-  const handlePaymentMethod = () => {
-    // Placeholder for future Stripe integration
-    toast({
-      title: "Coming Soon",
-      description: "Payment method management will be available soon.",
-    });
+  const handleRestorePurchases = async () => {
+    if (!subscriptionService.isIOS()) {
+      toast({
+        title: "Restore Available on iOS App",
+        description: "Purchase restoration is only available in the iOS version of this app.",
+      });
+      return;
+    }
+
+    setIsLoadingRestore(true);
+    
+    try {
+      const restored = await subscriptionService.restorePurchases();
+      
+      if (restored) {
+        const updatedSubscription = await subscriptionService.loadUserSubscription();
+        setProfile(prev => ({ ...prev, subscription: updatedSubscription }));
+        toast({
+          title: "Purchases restored! 🎉",
+          description: "Your Maker Pro subscription has been restored.",
+        });
+      } else {
+        toast({
+          title: "No active purchases found",
+          description: "We couldn't find any active subscriptions to restore.",
+        });
+      }
+    } catch (error) {
+      console.error('Restore error:', error);
+      toast({
+        title: "Restore failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingRestore(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    if (!subscriptionService.isIOS()) {
+      toast({
+        title: "Manage Subscription on iOS App",
+        description: "Subscription management is only available in the iOS version of this app.",
+      });
+      return;
+    }
+
+    try {
+      await subscriptionService.openManageSubscription();
+    } catch (error) {
+      console.error('Manage subscription error:', error);
+      toast({
+        title: "Unable to open subscription management",
+        description: "Please try again or manage through iOS Settings.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubscriptionChange = async () => {
+    // Refresh subscription data after purchase
+    const updatedSubscription = await subscriptionService.loadUserSubscription();
+    setProfile(prev => ({ ...prev, subscription: updatedSubscription }));
+  };
+
+  const formatExpirationDate = (dateString?: string) => {
+    if (!dateString) return null;
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch {
+      return null;
+    }
   };
 
   const isFormValid = profile.display_name.trim().length >= 2 && !displayNameError;
-  const canSave = isDirty && isFormValid && !isLoading;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="h-[90vh] overflow-y-auto" aria-label="Account">
-        <SheetHeader className="text-left">
-          <div className="flex items-center justify-between">
-            <SheetTitle>Account</SheetTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+        <SheetHeader className="mb-6">
+          <SheetTitle>Account</SheetTitle>
+          <SheetDescription>
+            Manage your profile, subscription, and preferences
+          </SheetDescription>
         </SheetHeader>
 
-        <div className="grid gap-6 py-4">
+        <div className="space-y-8">
           {/* Profile Section */}
-          <section className="grid gap-4">
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <h3 className="text-sm font-medium">Profile</h3>
+              <User className="w-4 h-4" />
+              <h3 className="font-medium">Profile</h3>
             </div>
             
-            <div className="grid gap-4">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={profile.avatar_url} alt="Profile avatar" />
-                  <AvatarFallback>{profile.display_name.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Camera className="h-3 w-3" />
-                  Change Photo
-                </Button>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="display-name">Display Name *</Label>
-                <Input
-                  id="display-name"
-                  value={profile.display_name}
-                  onChange={(e) => handleDisplayNameChange(e.target.value)}
-                  placeholder="Enter your name"
-                  autoFocus
-                />
-                {displayNameError && (
-                  <p className="text-sm text-destructive">{displayNameError}</p>
-                )}
-              </div>
-
-              {isAuthenticated && (
-                <div className="grid gap-2">
-                  <Label>Email</Label>
-                  <Input value={email} disabled />
-                </div>
-              )}
-
-              <Button 
-                onClick={handleSave} 
-                disabled={!canSave}
-                className="w-fit"
-              >
-                {isLoading ? "Saving..." : "Save"}
+            <div className="flex items-center gap-4">
+              <Avatar className="w-16 h-16">
+                <AvatarImage src={profile.avatar_url} />
+                <AvatarFallback>
+                  {profile.display_name.charAt(0).toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <Button variant="outline" size="sm">
+                <Camera className="w-4 h-4 mr-2" />
+                Change Photo
               </Button>
             </div>
-          </section>
+
+            <div className="space-y-2">
+              <Label htmlFor="display-name">Display Name *</Label>
+              <Input
+                id="display-name"
+                value={profile.display_name}
+                onChange={(e) => {
+                  setProfile(prev => ({ ...prev, display_name: e.target.value }));
+                  validateDisplayName(e.target.value);
+                }}
+                placeholder="Enter your name"
+                autoFocus
+              />
+              {displayNameError && (
+                <p className="text-sm text-destructive">{displayNameError}</p>
+              )}
+            </div>
+
+            {user && (
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input value={user.email || ""} disabled className="bg-muted" />
+              </div>
+            )}
+
+            <Button 
+              onClick={handleSave}
+              disabled={!hasChanges || !isFormValid}
+            >
+              Save
+            </Button>
+          </div>
+
+          <Separator />
 
           {/* Contact Section */}
-          <section className="grid gap-4">
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              <h3 className="text-sm font-medium">Contact</h3>
+              <CreditCard className="w-4 h-4" />
+              <h3 className="font-medium">Contact</h3>
             </div>
             
-            <div className="grid gap-2">
+            <div className="space-y-2">
               <Label htmlFor="address">Address</Label>
               <Textarea
                 id="address"
@@ -288,34 +351,81 @@ export function AccountModal({ open, onOpenChange }: AccountModalProps) {
                 rows={3}
               />
             </div>
-          </section>
+          </div>
 
-          {/* Payment Section */}
-          <section className="grid gap-4">
+          <Separator />
+
+          {/* Subscription Section */}
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              <h3 className="text-sm font-medium">Payment</h3>
+              <Crown className="w-4 h-4" />
+              <h3 className="font-medium">Subscription</h3>
             </div>
             
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm">Payment method</span>
-              <Button variant="outline" size="sm" onClick={handlePaymentMethod}>
-                Add / Manage
+            {profile.subscription.plan === 'pro' ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 border rounded-lg bg-primary/5 border-primary/20">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="default" className="bg-primary">
+                      <Crown className="w-3 h-3 mr-1" />
+                      Pro
+                    </Badge>
+                    <span className="text-sm font-medium">Maker Pro is active</span>
+                  </div>
+                </div>
+                
+                {profile.subscription.latestExpirationAt && (
+                  <p className="text-xs text-muted-foreground px-3">
+                    Renews on {formatExpirationDate(profile.subscription.latestExpirationAt)}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <Button 
+                className="w-full justify-start" 
+                variant="outline"
+                onClick={() => setSubscriptionBottomSheetOpen(true)}
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Go Pro
+              </Button>
+            )}
+
+            <div className="space-y-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-muted-foreground"
+                onClick={handleRestorePurchases}
+                disabled={isLoadingRestore}
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                {isLoadingRestore ? "Restoring..." : "Restore Purchases"}
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-muted-foreground"
+                onClick={handleManageSubscription}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Manage Subscription
               </Button>
             </div>
-          </section>
+          </div>
+
+          <Separator />
 
           {/* Preferences Section */}
-          <section className="grid gap-4">
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              <h3 className="text-sm font-medium">Preferences</h3>
+              <Bell className="w-4 h-4" />
+              <h3 className="font-medium">Preferences</h3>
             </div>
             
-            <div className="flex items-center justify-between py-2">
-              <Label htmlFor="notifications" className="text-sm font-normal">
-                Notifications
-              </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="notifications">Notifications</Label>
               <Switch
                 id="notifications"
                 checked={profile.notifications_enabled}
@@ -324,28 +434,34 @@ export function AccountModal({ open, onOpenChange }: AccountModalProps) {
                 }
               />
             </div>
-          </section>
+          </div>
 
-          {/* Danger Zone */}
-          {isAuthenticated && (
-            <section className="grid gap-4 border-t pt-4">
-              <div className="flex items-center gap-2">
-                <LogOut className="h-4 w-4" />
-                <h3 className="text-sm font-medium">Account</h3>
-              </div>
+          {user && (
+            <>
+              <Separator />
               
-              <Button
-                variant="outline"
-                onClick={handleSignOut}
-                className="w-fit gap-2"
-              >
-                <LogOut className="h-3 w-3" />
-                Sign Out
-              </Button>
-            </section>
+              {/* Danger Zone */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <LogOut className="w-4 h-4" />
+                  <h3 className="font-medium">Account</h3>
+                </div>
+                
+                <Button variant="outline" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            </>
           )}
         </div>
       </SheetContent>
+      
+      <SubscriptionBottomSheet
+        open={subscriptionBottomSheetOpen}
+        onOpenChange={setSubscriptionBottomSheetOpen}
+        onSubscriptionChange={handleSubscriptionChange}
+      />
     </Sheet>
   );
 }

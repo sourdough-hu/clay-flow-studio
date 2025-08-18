@@ -168,7 +168,12 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          latest_expiration_at: string | null
           notifications_enabled: boolean | null
+          original_transaction_id: string | null
+          plan: string | null
+          store: string | null
+          subscription_status: string | null
           updated_at: string
           user_id: string
         }
@@ -178,7 +183,12 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          latest_expiration_at?: string | null
           notifications_enabled?: boolean | null
+          original_transaction_id?: string | null
+          plan?: string | null
+          store?: string | null
+          subscription_status?: string | null
           updated_at?: string
           user_id: string
         }
@@ -188,7 +198,12 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          latest_expiration_at?: string | null
           notifications_enabled?: boolean | null
+          original_transaction_id?: string | null
+          plan?: string | null
+          store?: string | null
+          subscription_status?: string | null
           updated_at?: string
           user_id?: string
         }
