@@ -210,7 +210,7 @@ const Tasks = () => {
 
 
 
-      <section aria-label="Filters" className="grid gap-3 mx-4">
+      <section aria-label="Filters" className="grid gap-3">
         <div className="flex justify-center">
           <div className="inline-flex items-center gap-2 rounded-md border p-1 px-0">
             {rangeOptions.map(opt => <Button key={opt.key} size="sm" variant={range === opt.key ? "default" : "ghost"} onClick={() => setRange(opt.key)}>
