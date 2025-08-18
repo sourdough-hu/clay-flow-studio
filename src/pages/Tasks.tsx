@@ -194,7 +194,7 @@ const Tasks = () => {
 
 
       <section aria-label="Filters" className="grid gap-3">
-        <div className="flex justify-center">
+        <div className="flex justify-center mx-1">
           <div className="inline-flex items-center gap-2 rounded-md border p-1">
             {rangeOptions.map((opt) => (
               <Button
