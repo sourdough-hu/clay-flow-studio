@@ -451,9 +451,9 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
                 size="sm"
                 className="w-full justify-start text-muted-foreground"
                 onClick={() => {
-                  const subject = encodeURIComponent("I have a piece of feedback");
+                  const subject = encodeURIComponent("Feedback from Clay Flow Studio");
                   const body = encodeURIComponent("Hi team,\n\nI'd like to share some feedback:\n\n");
-                  window.location.href = `mailto:HelloPotteryPal@gmail.com?subject=${subject}&body=${body}`;
+                  window.location.href = `mailto:support@yourdomain.com?subject=${subject}&body=${body}`;
                 }}
               >
                 <Mail className="w-4 h-4 mr-2" />
