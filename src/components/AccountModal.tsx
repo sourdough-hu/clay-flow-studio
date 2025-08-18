@@ -67,7 +67,7 @@ export function AccountModal({ open, onOpenChange }: AccountModalProps) {
         // Try to get existing profile
         const { data: existingProfile } = await supabase
           .from("profiles")
-          .select("display_name, avatar_url")
+          .select("display_name, avatar_url, address, notifications_enabled")
           .eq("user_id", session.user.id)
           .single();
 
@@ -75,8 +75,8 @@ export function AccountModal({ open, onOpenChange }: AccountModalProps) {
           display_name: existingProfile?.display_name || 
             session.user.email?.split("@")[0] || 
             "",
-          address: "", // We'll need to add this field to the profiles table
-          notifications_enabled: true, // We'll need to add this field too
+          address: existingProfile?.address || "",
+          notifications_enabled: existingProfile?.notifications_enabled ?? true,
           avatar_url: existingProfile?.avatar_url,
         };
 
@@ -142,7 +142,8 @@ export function AccountModal({ open, onOpenChange }: AccountModalProps) {
           .upsert({
             user_id: session.user.id,
             display_name: profile.display_name.trim(),
-            // We'll add address and notifications_enabled fields later
+            address: profile.address,
+            notifications_enabled: profile.notifications_enabled,
           });
 
         if (error) throw error;
