@@ -22,6 +22,7 @@ export interface FilterValue {
 interface FilterBottomSheetProps {
   activeFilters: FilterValue[];
   onFiltersChange: (filters: FilterValue[]) => void;
+  hideStage?: boolean;
 }
 
 const stageOptions: Stage[] = ["throwing","trimming","drying","bisque_firing","decorating","glazing","glaze_firing","finished"];
@@ -30,7 +31,7 @@ const clayTypeOptions: ClayType[] = ["Stoneware","Porcelain","Earthenware","Terr
 
 const formatStage = (stage: string) => stage.replace("_"," ").charAt(0).toUpperCase() + stage.replace("_"," ").slice(1);
 
-export function FilterBottomSheet({ activeFilters, onFiltersChange }: FilterBottomSheetProps) {
+export function FilterBottomSheet({ activeFilters, onFiltersChange, hideStage = false }: FilterBottomSheetProps) {
   const [open, setOpen] = useState(false);
   const [selectedFilterType, setSelectedFilterType] = useState<"stage" | "size" | "clayType" | null>(null);
 
@@ -94,13 +95,15 @@ export function FilterBottomSheet({ activeFilters, onFiltersChange }: FilterBott
               <>
                 <h3 className="font-medium">Add filter</h3>
                 <div className="grid grid-cols-1 gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setSelectedFilterType("stage")}
-                    className="justify-start"
-                  >
-                    Stage
-                  </Button>
+                  {!hideStage && (
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setSelectedFilterType("stage")}
+                      className="justify-start"
+                    >
+                      Stage
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     onClick={() => setSelectedFilterType("size")}

@@ -49,7 +49,7 @@ const Gallery = () => {
 
       <div className="space-y-4">
         <Input placeholder="Search titles, notes, tags" value={q} onChange={(e) => setQ(e.target.value)} />
-        <FilterBottomSheet activeFilters={activeFilters} onFiltersChange={setActiveFilters} />
+        <FilterBottomSheet activeFilters={activeFilters} onFiltersChange={setActiveFilters} hideStage={true} />
       </div>
       <Link to="/new/piece?stage=finished" className="block">
         <Button variant="secondary" className="w-full h-11 justify-center rounded-lg text-secondary-foreground" aria-label="Add new">
