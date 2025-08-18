@@ -210,15 +210,15 @@ const Tasks = () => {
 
 
 
-      <section aria-label="Filters" className="grid gap-3">
-        <div className="flex justify-center mx-1">
+      <section aria-label="Filters" className="grid gap-3 mx-4">
+        <div className="flex justify-center">
           <div className="inline-flex items-center gap-2 rounded-md border p-1 px-0">
             {rangeOptions.map(opt => <Button key={opt.key} size="sm" variant={range === opt.key ? "default" : "ghost"} onClick={() => setRange(opt.key)}>
                 {opt.label}
               </Button>)}
           </div>
         </div>
-        <div className="flex items-center gap-2 mx-1">
+        <div className="flex items-center gap-2">
           <Input placeholder="Search by piece title" value={query} onChange={e => setQuery(e.target.value)} />
           <Select value={typeFilter} onValueChange={setTypeFilter}>
             <SelectTrigger className="w-[160px]">
@@ -231,7 +231,7 @@ const Tasks = () => {
             </SelectContent>
           </Select>
         </div>
-        <div className="mx-1">
+        <div>
           <FilterBottomSheet activeFilters={activeFilters} onFiltersChange={setActiveFilters} />
         </div>
       </section>
