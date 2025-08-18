@@ -60,14 +60,8 @@ const Pieces = () => {
       </Link>
       <section className="space-y-3 pb-8">
         {filtered.length === 0 ? (
-          <div className="text-center py-8 space-y-4">
+          <div className="text-center py-8">
             <p className="text-sm text-muted-foreground">No pieces found</p>
-            <Link to="/new/piece">
-              <Button variant="outline" size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Start something new
-              </Button>
-            </Link>
           </div>
         ) : (
           filtered.map((p) => (
