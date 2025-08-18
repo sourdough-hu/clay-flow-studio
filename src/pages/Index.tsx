@@ -79,7 +79,7 @@ const Index = () => {
           <Link to="/start-new" className="block">
             <Card className="aspect-square group cursor-pointer">
               <CardHeader>
-                <CardTitle className="text-base">New Record</CardTitle>
+                <CardTitle className="text-lg">New Record</CardTitle>
               </CardHeader>
             </Card>
           </Link>
