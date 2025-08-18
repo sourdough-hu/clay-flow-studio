@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -85,7 +85,7 @@ const TopAppBar = () => {
               className="inline-flex h-10 w-10 items-center justify-center rounded-full p-2 text-muted-foreground transition-colors hover:text-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               variant="ghost"
             >
-              <ChevronDown className="h-6 w-6" aria-hidden="true" />
+              <Plus className="h-8 w-8" aria-hidden="true" />
               <span className="sr-only">Create</span>
             </Button>
           </DropdownMenuTrigger>
