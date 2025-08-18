@@ -208,7 +208,7 @@ const Tasks = () => {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mx-1">
           <Input
             placeholder="Search by piece title"
             value={query}
@@ -227,7 +227,9 @@ const Tasks = () => {
             </SelectContent>
           </Select>
         </div>
-        <FilterBottomSheet activeFilters={activeFilters} onFiltersChange={setActiveFilters} />
+        <div className="mx-1">
+          <FilterBottomSheet activeFilters={activeFilters} onFiltersChange={setActiveFilters} />
+        </div>
       </section>
 
       {overdue.length > 0 && (
