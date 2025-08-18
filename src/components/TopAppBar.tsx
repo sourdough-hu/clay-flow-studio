@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
+import { AccountModal } from "./AccountModal";
 
 const TopAppBar = () => {
   const [userInfo, setUserInfo] = useState<{
@@ -12,6 +13,7 @@ const TopAppBar = () => {
     avatarUrl?: string;
     isAuthenticated: boolean;
   }>({ name: "Guest", isAuthenticated: false });
+  const [accountModalOpen, setAccountModalOpen] = useState(false);
 
   useEffect(() => {
     const loadUserInfo = async () => {
@@ -71,13 +73,18 @@ const TopAppBar = () => {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 max-w-screen-sm items-center justify-between px-4">
-        <NavLink to={userInfo.isAuthenticated ? "/account" : "/auth"} aria-label="Account" className="flex items-center gap-2">
+        <Button 
+          variant="ghost" 
+          onClick={() => setAccountModalOpen(true)}
+          aria-label="Account" 
+          className="flex items-center gap-2 h-auto p-2"
+        >
           <Avatar className="h-8 w-8">
             <AvatarImage src={userInfo.avatarUrl} alt={`${userInfo.name} profile avatar`} />
             <AvatarFallback>{userInfo.name.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
           <span className="text-sm font-medium text-foreground">{userInfo.name}</span>
-        </NavLink>
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -101,6 +108,11 @@ const TopAppBar = () => {
         </DropdownMenu>
       </div>
       <div className="pb-[env(safe-area-inset-top)]" />
+      
+      <AccountModal 
+        open={accountModalOpen} 
+        onOpenChange={setAccountModalOpen} 
+      />
     </header>
   );
 };
