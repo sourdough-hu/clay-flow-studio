@@ -164,7 +164,11 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          address_line1: string | null
+          address_line2: string | null
           avatar_url: string | null
+          city: string | null
+          country: string | null
           created_at: string
           display_name: string | null
           id: string
@@ -172,6 +176,8 @@ export type Database = {
           notifications_enabled: boolean | null
           original_transaction_id: string | null
           plan: string | null
+          postal_code: string | null
+          state: string | null
           store: string | null
           subscription_status: string | null
           updated_at: string
@@ -179,7 +185,11 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
           avatar_url?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -187,6 +197,8 @@ export type Database = {
           notifications_enabled?: boolean | null
           original_transaction_id?: string | null
           plan?: string | null
+          postal_code?: string | null
+          state?: string | null
           store?: string | null
           subscription_status?: string | null
           updated_at?: string
@@ -194,7 +206,11 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
           avatar_url?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -202,6 +218,8 @@ export type Database = {
           notifications_enabled?: boolean | null
           original_transaction_id?: string | null
           plan?: string | null
+          postal_code?: string | null
+          state?: string | null
           store?: string | null
           subscription_status?: string | null
           updated_at?: string

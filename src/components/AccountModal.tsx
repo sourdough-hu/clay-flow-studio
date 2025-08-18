@@ -16,9 +16,14 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CreditCard, Bell, LogOut, Camera, User, Crown, ExternalLink, RotateCcw, Mail, Star, MessageSquare } from "lucide-react";
+import { CreditCard, Bell, LogOut, Camera, User, Crown, ExternalLink, RotateCcw, Mail, Star, MessageSquare, Edit, MapPin } from "lucide-react";
 import { subscriptionService, type SubscriptionData } from "@/services/subscriptionService";
 import SubscriptionBottomSheet from "./SubscriptionBottomSheet";
+import ImageCropper from "./ImageCropper";
+import AddressForm from "./AddressForm";
+import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { ActionSheet, ActionSheetButtonStyle } from '@capacitor/action-sheet';
+import { Capacitor } from '@capacitor/core';
 
 interface AccountModalProps {
   open: boolean;
@@ -28,6 +33,12 @@ interface AccountModalProps {
 interface ProfileData {
   display_name: string;
   address: string;
+  address_line1: string;
+  address_line2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
   notifications_enabled: boolean;
   avatar_url?: string;
 }
@@ -40,12 +51,24 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
   const [profile, setProfile] = useState<ExtendedProfileData>({
     display_name: "",
     address: "",
+    address_line1: "",
+    address_line2: "",
+    city: "",
+    state: "",
+    postal_code: "",
+    country: "United States",
     notifications_enabled: true,
     subscription: { plan: 'free', subscriptionStatus: 'expired' },
   });
   const [originalProfile, setOriginalProfile] = useState<ExtendedProfileData>({
     display_name: "",
     address: "",
+    address_line1: "",
+    address_line2: "",
+    city: "",
+    state: "",
+    postal_code: "",
+    country: "United States",
     notifications_enabled: true,
     subscription: { plan: 'free', subscriptionStatus: 'expired' },
   });
@@ -54,6 +77,10 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
   const [displayNameError, setDisplayNameError] = useState("");
   const [subscriptionBottomSheetOpen, setSubscriptionBottomSheetOpen] = useState(false);
   const [isLoadingRestore, setIsLoadingRestore] = useState(false);
+  const [imageCropperOpen, setImageCropperOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState("");
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [addressFormOpen, setAddressFormOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -83,7 +110,7 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
         // Try to get existing profile
         const { data: existingProfile } = await supabase
           .from("profiles")
-          .select("display_name, avatar_url, address, notifications_enabled, plan, store, original_transaction_id, latest_expiration_at, subscription_status")
+          .select("display_name, avatar_url, address, address_line1, address_line2, city, state, postal_code, country, notifications_enabled, plan, store, original_transaction_id, latest_expiration_at, subscription_status")
           .eq("user_id", session.user.id)
           .single();
 
@@ -92,6 +119,12 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
             session.user.email?.split("@")[0] || 
             "",
           address: existingProfile?.address || "",
+          address_line1: existingProfile?.address_line1 || "",
+          address_line2: existingProfile?.address_line2 || "",
+          city: existingProfile?.city || "",
+          state: existingProfile?.state || "",
+          postal_code: existingProfile?.postal_code || "",
+          country: existingProfile?.country || "United States",
           notifications_enabled: existingProfile?.notifications_enabled ?? true,
           avatar_url: existingProfile?.avatar_url,
           subscription: subscriptionData,
@@ -104,6 +137,12 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
         const guestProfile = {
           display_name: localStorage.getItem("guest_display_name") || "",
           address: localStorage.getItem("guest_address") || "",
+          address_line1: "",
+          address_line2: "",
+          city: "",
+          state: "",
+          postal_code: "",
+          country: "United States",
           notifications_enabled: localStorage.getItem("guest_notifications") === "true",
           subscription: { plan: 'free' as const, subscriptionStatus: 'expired' as const },
         };
@@ -267,6 +306,231 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
     }
   };
 
+  const handlePhotoAction = async () => {
+    if (!Capacitor.isNativePlatform()) {
+      // Web fallback - file input
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/png,image/jpeg';
+      input.onchange = async (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+          if (file.size > 5 * 1024 * 1024) {
+            toast({
+              title: "File too large",
+              description: "Please select an image smaller than 5MB.",
+              variant: "destructive",
+            });
+            return;
+          }
+          const imageUrl = URL.createObjectURL(file);
+          setCropImageSrc(imageUrl);
+          setImageCropperOpen(true);
+        }
+      };
+      input.click();
+      return;
+    }
+
+    // Native iOS - show action sheet
+    const buttons = ['Take Photo', 'Choose from Library'];
+    
+    if (profile.avatar_url) {
+      buttons.push('Remove Photo');
+    }
+    
+    buttons.push('Cancel');
+
+    try {
+      const result = await ActionSheet.showActions({
+        title: 'Change Profile Photo',
+        options: buttons.map(title => ({ title }))
+      });
+
+      const cancelIndex = buttons.length - 1;
+      const removeIndex = profile.avatar_url ? buttons.length - 2 : -1;
+
+      if (result.index === 0) {
+        // Take Photo
+        const image = await CapacitorCamera.getPhoto({
+          quality: 90,
+          allowEditing: false,
+          resultType: CameraResultType.Uri,
+          source: CameraSource.Camera
+        });
+        if (image.webPath) {
+          setCropImageSrc(image.webPath);
+          setImageCropperOpen(true);
+        }
+      } else if (result.index === 1) {
+        // Choose from Library
+        const image = await CapacitorCamera.getPhoto({
+          quality: 90,
+          allowEditing: false,
+          resultType: CameraResultType.Uri,
+          source: CameraSource.Photos
+        });
+        if (image.webPath) {
+          setCropImageSrc(image.webPath);
+          setImageCropperOpen(true);
+        }
+      } else if (result.index === removeIndex && profile.avatar_url) {
+        // Remove Photo
+        await handleRemovePhoto();
+      } else if (result.index === cancelIndex) {
+        // Cancel - do nothing
+        return;
+      }
+    } catch (error) {
+      console.error('Error with photo action:', error);
+      toast({
+        title: "Photo action failed",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    if (!user) return;
+
+    try {
+      setIsUploadingPhoto(true);
+      
+      // Delete from storage if exists
+      if (profile.avatar_url) {
+        const fileName = profile.avatar_url.split('/').pop();
+        if (fileName) {
+          await supabase.storage
+            .from('avatars')
+            .remove([`${user.id}/${fileName}`]);
+        }
+      }
+
+      // Update profile
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setProfile(prev => ({ ...prev, avatar_url: undefined }));
+      setOriginalProfile(prev => ({ ...prev, avatar_url: undefined }));
+
+      toast({
+        title: "Photo removed",
+        description: "Your profile photo has been removed.",
+      });
+    } catch (error) {
+      console.error('Error removing photo:', error);
+      toast({
+        title: "Failed to remove photo",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  const handleCropComplete = async (croppedImageBlob: Blob) => {
+    if (!user) return;
+
+    try {
+      setIsUploadingPhoto(true);
+      
+      // Delete old avatar if exists
+      if (profile.avatar_url) {
+        const fileName = profile.avatar_url.split('/').pop();
+        if (fileName) {
+          await supabase.storage
+            .from('avatars')
+            .remove([`${user.id}/${fileName}`]);
+        }
+      }
+
+      // Upload new avatar
+      const timestamp = Date.now();
+      const fileName = `${timestamp}.jpg`;
+      const filePath = `${user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, croppedImageBlob, {
+          contentType: 'image/jpeg',
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
+      setOriginalProfile(prev => ({ ...prev, avatar_url: publicUrl }));
+
+      toast({
+        title: "Photo updated",
+        description: "Your profile photo has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      toast({
+        title: "Failed to update photo",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  const handleAddressSave = async (addressData: any) => {
+    if (!user) return;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) throw new Error("Not authenticated");
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        address_line1: addressData.address_line1,
+        address_line2: addressData.address_line2,
+        city: addressData.city,
+        state: addressData.state,
+        postal_code: addressData.postal_code,
+        country: addressData.country,
+      })
+      .eq("user_id", session.user.id);
+
+    if (error) throw error;
+
+    // Update local state
+    setProfile(prev => ({ ...prev, ...addressData }));
+    setOriginalProfile(prev => ({ ...prev, ...addressData }));
+  };
+
+  const formatAddress = () => {
+    const { address_line1, address_line2, city, state, postal_code, country } = profile;
+    
+    if (!address_line1 || !city || !state || !postal_code) {
+      return null;
+    }
+
+    const line1 = address_line2 ? `${address_line1}, ${address_line2}` : address_line1;
+    return `${line1} · ${city}, ${state} ${postal_code} · ${country}`;
+  };
+
   const isFormValid = profile.display_name.trim().length >= 2 && !displayNameError;
 
   return (
@@ -294,9 +558,14 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
                   {profile.display_name.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handlePhotoAction}
+                disabled={isUploadingPhoto}
+              >
                 <Camera className="w-4 h-4 mr-2" />
-                Change Photo
+                {isUploadingPhoto ? 'Uploading...' : 'Change Photo'}
               </Button>
             </div>
 
@@ -337,19 +606,32 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
           {/* Contact Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4" />
+              <MapPin className="w-4 h-4" />
               <h3 className="font-medium">Contact</h3>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Textarea
-                id="address"
-                value={profile.address}
-                onChange={(e) => setProfile(prev => ({ ...prev, address: e.target.value }))}
-                placeholder="Enter your address"
-                rows={3}
-              />
+              <div className="flex items-center justify-between">
+                <Label>Address</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setAddressFormOpen(true)}
+                >
+                  <Edit className="w-4 h-4 mr-1" />
+                  Edit Address
+                </Button>
+              </div>
+              
+              {formatAddress() ? (
+                <div className="p-3 bg-muted/50 rounded-md text-sm">
+                  {formatAddress()}
+                </div>
+              ) : (
+                <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground">
+                  No address on file
+                </div>
+              )}
             </div>
           </div>
 
@@ -515,6 +797,27 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
         open={subscriptionBottomSheetOpen}
         onOpenChange={setSubscriptionBottomSheetOpen}
         onSubscriptionChange={handleSubscriptionChange}
+      />
+      
+      <ImageCropper
+        open={imageCropperOpen}
+        onOpenChange={setImageCropperOpen}
+        imageSrc={cropImageSrc}
+        onCropComplete={handleCropComplete}
+      />
+      
+      <AddressForm
+        open={addressFormOpen}
+        onOpenChange={setAddressFormOpen}
+        initialData={{
+          address_line1: profile.address_line1,
+          address_line2: profile.address_line2,
+          city: profile.city,
+          state: profile.state,
+          postal_code: profile.postal_code,
+          country: profile.country,
+        }}
+        onSave={handleAddressSave}
       />
     </Sheet>
   );
