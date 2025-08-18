@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Capacitor } from "@capacitor/core";
+// import { Capacitor } from "@capacitor/core";
 
 // Product IDs for StoreKit
 export const PRODUCT_IDS = {
@@ -27,7 +27,10 @@ class SubscriptionService {
   }
 
   isIOS(): boolean {
-    return Capacitor.getPlatform() === 'ios';
+    // return Capacitor.getPlatform() === 'ios';
+    // Temporarily return false to test without Capacitor
+    console.log('isIOS called - returning false for testing');
+    return false;
   }
 
   async checkCurrentEntitlements(): Promise<SubscriptionData> {
