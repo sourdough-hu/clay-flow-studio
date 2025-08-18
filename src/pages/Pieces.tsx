@@ -1,61 +1,56 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPieces } from "@/lib/storage";
-import { Piece, SizeCategory, Stage } from "@/types";
+import { Piece } from "@/types";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { FilterBottomSheet, FilterValue } from "@/components/FilterBottomSheet";
 
 
-const sizeOptions: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
-const stageOptions: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","decorating"]; // no finished here
 
 const Pieces = () => {
   const [q, setQ] = useState("");
-  const [stage, setStage] = useState<string>("");
-  const [size, setSize] = useState<string>("");
+  const [activeFilters, setActiveFilters] = useState<FilterValue[]>([]);
 
   const filtered = useMemo(() => {
     const items = getPieces();
     return items.filter((p) => {
       if (p.current_stage === "finished") return false;
+      
+      // Search filter
       const matchQ = q
         ? (p.title + " " + (p.notes ?? "") + " " + (p.tags ?? []).join(",")).toLowerCase().includes(q.toLowerCase())
         : true;
-      const matchStage = stage ? p.current_stage === stage : true;
-      const matchSize = size ? p.size_category === size : true;
-      return matchQ && matchStage && matchSize;
+      
+      // Active filters
+      const matchFilters = activeFilters.every(filter => {
+        switch (filter.type) {
+          case "stage":
+            return p.current_stage === filter.value;
+          case "size":
+            return p.size_category === filter.value;
+          case "clayType":
+            return p.clay_type === filter.value;
+          default:
+            return true;
+        }
+      });
+      
+      return matchQ && matchFilters;
     });
-  }, [q, stage, size]);
+  }, [q, activeFilters]);
 
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — Making" description="Track works in progress. Thumbnails, stage, and next checkpoint." />
 
 
-      <div className="grid grid-cols-1 gap-2">
+      <div className="space-y-4">
         <Input placeholder="Search titles, notes, tags" value={q} onChange={(e) => setQ(e.target.value)} />
-        <div className="grid grid-cols-2 gap-2">
-          <Select onValueChange={setStage} value={stage}>
-            <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
-            <SelectContent>
-              {stageOptions.map((s) => (
-                <SelectItem key={s} value={s}>{(s.replace("_"," ").charAt(0).toUpperCase() + s.replace("_"," ").slice(1))}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select onValueChange={setSize} value={size}>
-            <SelectTrigger><SelectValue placeholder="Size" /></SelectTrigger>
-            <SelectContent>
-              {sizeOptions.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <FilterBottomSheet activeFilters={activeFilters} onFiltersChange={setActiveFilters} />
       </div>
       <Link to="/new/piece" className="block">
         <Button variant="secondary" className="w-full h-11 justify-center rounded-lg text-secondary-foreground" aria-label="Add new">
@@ -65,7 +60,15 @@ const Pieces = () => {
       </Link>
       <section className="space-y-3 pb-8">
         {filtered.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No pieces in progress — start something new.</p>
+          <div className="text-center py-8 space-y-4">
+            <p className="text-sm text-muted-foreground">No pieces found</p>
+            <Link to="/new/piece">
+              <Button variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Start something new
+              </Button>
+            </Link>
+          </div>
         ) : (
           filtered.map((p) => (
             <Link to={`/piece/${p.id}`} key={p.id} className="block">
@@ -79,6 +82,9 @@ const Pieces = () => {
                 <CardContent className="pt-0 text-sm text-muted-foreground">
                   <div className="flex flex-wrap gap-3">
                     <span>Stage: <span className="text-foreground font-medium">{p.current_stage.replace("_"," ")}</span></span>
+                    {p.clay_type && p.clay_subtype && (
+                      <span>Clay: <span className="text-foreground font-medium">{p.clay_type} — {p.clay_subtype}</span></span>
+                    )}
                     {p.next_reminder_at && (
                       <span>Next checkpoint: <span className="text-foreground font-medium">{new Date(p.next_reminder_at).toLocaleDateString()}</span></span>
                     )}

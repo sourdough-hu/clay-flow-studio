@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import CameraCapture from "@/components/CameraCapture";
 import { getPieceById, upsertPiece } from "@/lib/storage";
-import { Piece, SizeCategory, Stage } from "@/types";
+import { Piece, SizeCategory, Stage, ClayType } from "@/types";
 
 const sizes: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
 const sizeTips: Record<SizeCategory, string> = {
@@ -19,6 +19,7 @@ const sizeTips: Record<SizeCategory, string> = {
   "Extra Large": "Large vase",
 };
 const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","decorating","finished"];
+const clayTypes: ClayType[] = ["Stoneware", "Porcelain", "Earthenware", "Terracotta", "Speckled Stoneware", "Recycled / Mixed", "Other"];
 
 const PieceEditForm = () => {
   const { id } = useParams();
@@ -35,10 +36,19 @@ const PieceEditForm = () => {
   const [techNotes, setTechNotes] = useState(piece?.technique_notes ?? "");
   const [startDate, setStartDate] = useState(() => piece?.start_date ? piece.start_date.slice(0,10) : "");
   const [description, setDescription] = useState(piece?.description ?? "");
+  const [clayType, setClayType] = useState<string>(piece?.clay_type ?? "");
+  const [claySubtype, setClaySubtype] = useState(piece?.clay_subtype ?? "");
+  const [claySubtypeError, setClaySubtypeError] = useState("");
 
   if (!piece) return <main className="p-4">Piece not found.</main>;
 
   const onSave = () => {
+    // Validate clay subtype if clay type is selected
+    if (clayType && (!claySubtype.trim() || claySubtype.trim().length < 2)) {
+      setClaySubtypeError("Please specify the clay subtype (e.g., Laguna B-Mix, Speckled).");
+      return;
+    }
+    setClaySubtypeError("");
     const updated: Piece = {
       ...piece,
       title: title.trim() || piece.title,
@@ -51,6 +61,8 @@ const PieceEditForm = () => {
       technique_notes: techNotes || undefined,
       start_date: startDate ? new Date(startDate).toISOString() : piece.start_date,
       description: description || undefined,
+      clay_type: (clayType || undefined) as ClayType | undefined,
+      clay_subtype: claySubtype.trim() || undefined,
     };
     upsertPiece(updated);
     navigate(`/piece/${piece.id}`);
@@ -134,6 +146,24 @@ const PieceEditForm = () => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Select value={clayType} onValueChange={setClayType}>
+              <SelectTrigger><SelectValue placeholder="Clay Type" /></SelectTrigger>
+              <SelectContent>
+                {clayTypes.map((t) => (<SelectItem key={t} value={t}>{t}</SelectItem>))}
+              </SelectContent>
+            </Select>
+            <div>
+              <Input 
+                placeholder="e.g., Laguna B-Mix 5, Speckled, Porcelain P300" 
+                value={claySubtype} 
+                onChange={(e) => setClaySubtype(e.target.value)}
+              />
+              {claySubtypeError && (
+                <p className="text-sm text-destructive mt-1">{claySubtypeError}</p>
+              )}
+            </div>
           </div>
           <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           <Input placeholder="Storage location" value={location} onChange={(e) => setLocation(e.target.value)} />

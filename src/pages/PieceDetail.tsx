@@ -39,6 +39,12 @@ const PieceDetail = () => {
           <Link to={`/edit/piece/${piece.id}`} className="text-sm underline underline-offset-4 text-primary">Edit Piece</Link>
         </div>
       </div>
+      
+      {piece.clay_type && piece.clay_subtype && (
+        <div className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">Clay:</span> {piece.clay_type} — {piece.clay_subtype}
+        </div>
+      )}
 
       <Card>
         <CardHeader>

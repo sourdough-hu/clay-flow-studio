@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Piece, SizeCategory, Stage } from "@/types";
+import { Piece, SizeCategory, Stage, ClayType } from "@/types";
 import { upsertPiece } from "@/lib/storage";
 import { suggestNextStep } from "@/lib/stage";
 import { SEO } from "@/components/SEO";
@@ -20,6 +20,7 @@ const sizeTips: Record<SizeCategory, string> = {
   "Extra Large": "Large vase",
 };
 const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","decorating","finished"];
+const clayTypes: ClayType[] = ["Stoneware", "Porcelain", "Earthenware", "Terracotta", "Speckled Stoneware", "Recycled / Mixed", "Other"];
 
 const PieceForm = () => {
   const navigate = useNavigate();
@@ -36,9 +37,20 @@ const PieceForm = () => {
   const [tags, setTags] = useState("");
   const [notes, setNotes] = useState("");
   const [techNotes, setTechNotes] = useState("");
+  const [clayType, setClayType] = useState<string>("");
+  const [claySubtype, setClaySubtype] = useState("");
+
+  const [claySubtypeError, setClaySubtypeError] = useState("");
 
   const onSubmit = () => {
     if (!title.trim()) return;
+    
+    // Validate clay subtype if clay type is selected
+    if (clayType && (!claySubtype.trim() || claySubtype.trim().length < 2)) {
+      setClaySubtypeError("Please specify the clay subtype (e.g., Laguna B-Mix, Speckled).");
+      return;
+    }
+    setClaySubtypeError("");
     const id = (crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2));
     const piece: Piece = {
       id,
@@ -51,6 +63,8 @@ const PieceForm = () => {
       notes: notes || undefined,
       tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
       technique_notes: techNotes || undefined,
+      clay_type: (clayType || undefined) as ClayType | undefined,
+      clay_subtype: claySubtype.trim() || undefined,
       stage_history: [],
       ...suggestNextStep(stage),
     };
@@ -82,6 +96,24 @@ const PieceForm = () => {
                 {stages.map((s) => (<SelectItem key={s} value={s}>{(s.replace("_"," ").charAt(0).toUpperCase() + s.replace("_"," ").slice(1))}</SelectItem>))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Select value={clayType} onValueChange={setClayType}>
+              <SelectTrigger><SelectValue placeholder="Clay Type" /></SelectTrigger>
+              <SelectContent>
+                {clayTypes.map((t) => (<SelectItem key={t} value={t}>{t}</SelectItem>))}
+              </SelectContent>
+            </Select>
+            <div>
+              <Input 
+                placeholder="e.g., Laguna B-Mix 5, Speckled, Porcelain P300" 
+                value={claySubtype} 
+                onChange={(e) => setClaySubtype(e.target.value)}
+              />
+              {claySubtypeError && (
+                <p className="text-sm text-destructive mt-1">{claySubtypeError}</p>
+              )}
+            </div>
           </div>
           <Input placeholder="Storage location (shelf, board, etc.)" value={location} onChange={(e) => setLocation(e.target.value)} />
           <Input placeholder="Tags (comma separated)" value={tags} onChange={(e) => setTags(e.target.value)} />

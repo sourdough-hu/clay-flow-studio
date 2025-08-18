@@ -1,5 +1,14 @@
 export type SizeCategory = "Tiny" | "Small" | "Medium" | "Large" | "Extra Large";
 
+export type ClayType = 
+  | "Stoneware"
+  | "Porcelain"
+  | "Earthenware"
+  | "Terracotta"
+  | "Speckled Stoneware"
+  | "Recycled / Mixed"
+  | "Other";
+
 export type Stage =
   | "throwing"
   | "trimming"
@@ -37,6 +46,8 @@ export interface Piece {
   next_reminder_at?: string | null; // ISO or null
   stage_history?: StageEntry[];
   history?: HistoryEvent[];
+  clay_type?: ClayType;
+  clay_subtype?: string;
 }
 
 export interface Inspiration {

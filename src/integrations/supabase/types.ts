@@ -14,6 +14,153 @@ export type Database = {
   }
   public: {
     Tables: {
+      inspirations: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          link_url: string | null
+          linked_piece_id: string | null
+          note: string | null
+          photos: string[] | null
+          tags: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          linked_piece_id?: string | null
+          note?: string | null
+          photos?: string[] | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          linked_piece_id?: string | null
+          note?: string | null
+          photos?: string[] | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      piece_inspiration_links: {
+        Row: {
+          created_at: string
+          id: string
+          inspiration_id: string
+          piece_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inspiration_id: string
+          piece_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inspiration_id?: string
+          piece_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "piece_inspiration_links_inspiration_id_fkey"
+            columns: ["inspiration_id"]
+            isOneToOne: false
+            referencedRelation: "inspirations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "piece_inspiration_links_piece_id_fkey"
+            columns: ["piece_id"]
+            isOneToOne: false
+            referencedRelation: "pieces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pieces: {
+        Row: {
+          clay_subtype: string | null
+          clay_type: string | null
+          created_at: string
+          current_stage: string
+          description: string | null
+          history: Json | null
+          id: string
+          next_reminder_at: string | null
+          next_step: string | null
+          notes: string | null
+          photos: string[] | null
+          size_category: string | null
+          stage_history: Json | null
+          start_date: string | null
+          storage_location: string | null
+          tags: string[] | null
+          technique_notes: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clay_subtype?: string | null
+          clay_type?: string | null
+          created_at?: string
+          current_stage?: string
+          description?: string | null
+          history?: Json | null
+          id?: string
+          next_reminder_at?: string | null
+          next_step?: string | null
+          notes?: string | null
+          photos?: string[] | null
+          size_category?: string | null
+          stage_history?: Json | null
+          start_date?: string | null
+          storage_location?: string | null
+          tags?: string[] | null
+          technique_notes?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clay_subtype?: string | null
+          clay_type?: string | null
+          created_at?: string
+          current_stage?: string
+          description?: string | null
+          history?: Json | null
+          id?: string
+          next_reminder_at?: string | null
+          next_step?: string | null
+          notes?: string | null
+          photos?: string[] | null
+          size_category?: string | null
+          stage_history?: Json | null
+          start_date?: string | null
+          storage_location?: string | null
+          tags?: string[] | null
+          technique_notes?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
