@@ -76,34 +76,70 @@ const Index = () => {
 
       <section className="px-4 mt-6 pb-10">
         <div className="grid grid-cols-2 gap-3">
-          <Link to="/start-new" className="block">
-            <Card className="aspect-square group cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-lg">New Record</CardTitle>
-              </CardHeader>
-            </Card>
-          </Link>
-          <Link to="/pieces" className="block">
-            <Card className="aspect-square group cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-base">In the Making</CardTitle>
-              </CardHeader>
-            </Card>
-          </Link>
-          <Link to="/gallery" className="block">
-            <Card className="aspect-square group cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-base">My Gallery</CardTitle>
-              </CardHeader>
-            </Card>
-          </Link>
-          <Link to="/inspirations" className="block">
-            <Card className="aspect-square group cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-base">My Inspiration</CardTitle>
-              </CardHeader>
-            </Card>
-          </Link>
+          <button
+            onClick={() => navigate("/start-new")}
+            className="aspect-square min-h-[120px] flex items-center justify-center text-center bg-card border rounded-lg shadow-sm transition-all duration-[120ms] ease-out hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] active:opacity-92 focus:outline-none focus:ring-2 focus:ring-current focus:ring-offset-2 cursor-pointer"
+            aria-label="Start new record"
+          >
+            <span 
+              className="font-semibold tracking-wide leading-none px-2"
+              style={{ 
+                fontSize: "clamp(20px, 2.2vw, 28px)",
+                letterSpacing: "0.2px",
+                lineHeight: "1.15"
+              }}
+            >
+              New Record
+            </span>
+          </button>
+          <button
+            onClick={() => navigate("/pieces")}
+            className="aspect-square min-h-[120px] flex items-center justify-center text-center bg-card border rounded-lg shadow-sm transition-all duration-[120ms] ease-out hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] active:opacity-92 focus:outline-none focus:ring-2 focus:ring-current focus:ring-offset-2 cursor-pointer"
+            aria-label="View pieces in the making"
+          >
+            <span 
+              className="font-semibold tracking-wide leading-none px-2"
+              style={{ 
+                fontSize: "clamp(20px, 2.2vw, 28px)",
+                letterSpacing: "0.2px",
+                lineHeight: "1.15"
+              }}
+            >
+              In the Making
+            </span>
+          </button>
+          <button
+            onClick={() => navigate("/gallery")}
+            className="aspect-square min-h-[120px] flex items-center justify-center text-center bg-card border rounded-lg shadow-sm transition-all duration-[120ms] ease-out hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] active:opacity-92 focus:outline-none focus:ring-2 focus:ring-current focus:ring-offset-2 cursor-pointer"
+            aria-label="View my gallery"
+          >
+            <span 
+              className="font-semibold tracking-wide leading-none px-2"
+              style={{ 
+                fontSize: "clamp(20px, 2.2vw, 28px)",
+                letterSpacing: "0.2px",
+                lineHeight: "1.15"
+              }}
+            >
+              My Gallery
+            </span>
+          </button>
+          <button
+            onClick={() => navigate("/inspirations")}
+            className="aspect-square min-h-[120px] flex items-center justify-center text-center bg-card border rounded-lg shadow-sm transition-all duration-[120ms] ease-out hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] active:opacity-92 focus:outline-none focus:ring-2 focus:ring-current focus:ring-offset-2 cursor-pointer"
+            aria-label="View my inspiration"
+          >
+            <span 
+              className="font-semibold tracking-wide leading-none px-2"
+              style={{ 
+                fontSize: "clamp(20px, 2.2vw, 28px)",
+                letterSpacing: "0.2px",
+                lineHeight: "1.15"
+              }}
+            >
+              My Inspiration
+            </span>
+          </button>
         </div>
       </section>
     </main>
