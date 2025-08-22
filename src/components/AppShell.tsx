@@ -3,6 +3,7 @@ import TopAppBar from "@/components/TopAppBar";
 import BottomNav from "@/components/BottomNav";
 import { ReminderChecker } from "@/components/ReminderChecker";
 import OnboardingGate from "@/components/OnboardingGate";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import Index from "@/pages/Index";
 import Tasks from "@/pages/Tasks";
 import Pieces from "@/pages/Pieces";
@@ -28,6 +29,7 @@ const AppShell = () => {
     <>
       {!hideChrome && <TopAppBar />}
       <OnboardingGate />
+      <OfflineIndicator />
       <div className={hideChrome ? "" : "pt-16 pb-20"}>
         <ReminderChecker />
         <Routes>
