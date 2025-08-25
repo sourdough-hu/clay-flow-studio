@@ -126,6 +126,31 @@
   h2 { @apply text-2xl; font-family: var(--font-serif); font-weight: 600; }
   h3 { @apply text-xl; font-family: var(--font-serif); font-weight: 600; }
   input::placeholder, textarea::placeholder { color: hsl(var(--muted-foreground)); }
+
+  /* iOS Safe Area Support */
+  html, body {
+    /* Support iOS safe areas */
+    padding: 0;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  /* Ensure content respects safe areas */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
 }
 
 @layer components {

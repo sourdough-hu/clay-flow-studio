@@ -72,6 +72,9 @@ const TopAppBar = () => {
   }, []);
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* iOS safe area spacer */}
+      <div className="h-[env(safe-area-inset-top)] bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60" />
+      
       <div className="mx-auto flex h-14 max-w-screen-sm items-center justify-between px-4">
         <Button 
           variant="ghost" 
@@ -107,7 +110,6 @@ const TopAppBar = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="pb-[env(safe-area-inset-top)]" />
       
       <AccountModal 
         open={accountModalOpen} 

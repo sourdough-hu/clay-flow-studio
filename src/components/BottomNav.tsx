@@ -71,7 +71,8 @@ const BottomNav = () => {
           </NavLink>
         </li>
       </ul>
-      <div className="pb-[env(safe-area-inset-bottom)]" />
+      {/* iOS safe area spacer */}
+      <div className="h-[env(safe-area-inset-bottom)] bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60" />
     </nav>
   );
 };

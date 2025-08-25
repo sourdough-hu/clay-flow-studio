@@ -30,7 +30,7 @@ const AppShell = () => {
       {!hideChrome && <TopAppBar />}
       <OnboardingGate />
       <OfflineIndicator />
-      <div className={hideChrome ? "" : "pt-16 pb-20"}>
+      <div className={hideChrome ? "" : "pt-[calc(3.5rem+env(safe-area-inset-top))] pb-[calc(5rem+env(safe-area-inset-bottom))]"}>
         <ReminderChecker />
         <Routes>
           <Route path="/onboarding" element={<Onboarding />} />
