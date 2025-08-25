@@ -1,4 +1,5 @@
 import { Piece, Inspiration, UpcomingTask, PieceInspirationLink } from "@/types";
+import { migrateToPhotosArray } from "./photos";
 
 const PIECES_KEY = "pt_pieces";
 const INSPIRATIONS_KEY = "pt_inspirations";
@@ -12,7 +13,15 @@ function safeParse<T>(raw: string | null, fallback: T): T {
 }
 
 export function getPieces(): Piece[] {
-  return safeParse<Piece[]>(localStorage.getItem(PIECES_KEY), []);
+  const pieces = safeParse<Piece[]>(localStorage.getItem(PIECES_KEY), []);
+  // Migrate any pieces that don't have photos array
+  return pieces.map(piece => {
+    if (!piece.photos || piece.photos.length === 0) {
+      const migratedPhotos = migrateToPhotosArray(undefined, piece.photos);
+      return { ...piece, photos: migratedPhotos };
+    }
+    return piece;
+  });
 }
 
 export function savePieces(pieces: Piece[]) {
@@ -63,7 +72,15 @@ export function getPieceById(id: string): Piece | undefined {
 }
 
 export function getInspirations(): Inspiration[] {
-  return safeParse<Inspiration[]>(localStorage.getItem(INSPIRATIONS_KEY), []);
+  const inspirations = safeParse<Inspiration[]>(localStorage.getItem(INSPIRATIONS_KEY), []);
+  // Migrate any inspirations that don't have photos array
+  return inspirations.map(inspiration => {
+    if (!inspiration.photos || inspiration.photos.length === 0) {
+      const migratedPhotos = migrateToPhotosArray(inspiration.image_url, inspiration.photos);
+      return { ...inspiration, photos: migratedPhotos };
+    }
+    return inspiration;
+  });
 }
 
 export function saveInspirations(items: Inspiration[]) {

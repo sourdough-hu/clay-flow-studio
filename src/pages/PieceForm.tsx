@@ -9,7 +9,7 @@ import { Piece, SizeCategory, Stage, ClayType } from "@/types";
 import { upsertPiece } from "@/lib/storage";
 import { suggestNextStep } from "@/lib/stage";
 import { SEO } from "@/components/SEO";
-import CameraCapture from "@/components/CameraCapture";
+import MultiPhotoPicker from "@/components/MultiPhotoPicker";
 
 const sizes: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
 const sizeTips: Record<SizeCategory, string> = {
@@ -26,7 +26,7 @@ const PieceForm = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [title, setTitle] = useState("");
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<string[]>([]);
   const [size, setSize] = useState<string>("");
   const [stage, setStage] = useState<Stage>(() => {
     const s = (searchParams.get("stage") || "").toLowerCase();
@@ -55,7 +55,7 @@ const PieceForm = () => {
     const piece: Piece = {
       id,
       title: title.trim(),
-      photos: photo ? [photo] : [],
+      photos,
       start_date: new Date().toISOString(),
       size_category: (size || undefined) as SizeCategory | undefined,
       current_stage: stage,
@@ -82,7 +82,7 @@ const PieceForm = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <Input placeholder="Title (required)" value={title} onChange={(e) => setTitle(e.target.value)} />
-          <CameraCapture label="Add photo" value={photo} onChange={setPhoto} />
+          <MultiPhotoPicker label="Add photos" photos={photos} onChange={setPhotos} />
           <div className="grid grid-cols-2 gap-2">
             <Select value={size} onValueChange={setSize}>
               <SelectTrigger><SelectValue placeholder="Size" /></SelectTrigger>

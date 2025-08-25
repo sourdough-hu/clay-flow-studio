@@ -3,7 +3,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import CameraCapture from "@/components/CameraCapture";
+import PhotoGallery from "@/components/PhotoGallery";
+import MultiPhotoPicker from "@/components/MultiPhotoPicker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Inspiration, Piece } from "@/types";
@@ -29,14 +30,6 @@ const InspirationDetail = () => {
 
   if (!inspiration) return <main className="p-4">Inspiration not found.</main>;
 
-  const setThumb = (dataUrl: string | null) => {
-    if (!dataUrl) return;
-    setPhotos((prev) => [dataUrl, ...prev]);
-  };
-
-  const removePhoto = (idx: number) => {
-    setPhotos((prev) => prev.filter((_, i) => i !== idx));
-  };
 
   const togglePiece = (pid: string) => {
     setSelectedPieceIds((prev) => prev.includes(pid) ? prev.filter((x) => x !== pid) : [...prev, pid]);
@@ -76,19 +69,11 @@ const InspirationDetail = () => {
         <CardHeader>
           <CardTitle className="text-base">Photos</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {isEditing && <CameraCapture label="Add photo" value={null} onChange={setThumb} />}
-          {photos.length > 0 && (
-            <div className="grid grid-cols-3 gap-2">
-              {photos.map((src, i) => (
-                <div key={i} className="space-y-1">
-                  <img src={src} alt={`Inspiration photo ${i+1}`} className="w-full rounded-md border object-cover" />
-                  {isEditing && (
-                    <Button variant="outline" size="sm" onClick={() => removePhoto(i)}>Delete</Button>
-                  )}
-                </div>
-              ))}
-            </div>
+        <CardContent>
+          {isEditing ? (
+            <MultiPhotoPicker photos={photos} onChange={setPhotos} />
+          ) : (
+            <PhotoGallery photos={photos} />
           )}
         </CardContent>
       </Card>

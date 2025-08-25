@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import CameraCapture from "@/components/CameraCapture";
+import MultiPhotoPicker from "@/components/MultiPhotoPicker";
 import { getPieceById, upsertPiece } from "@/lib/storage";
 import { Piece, SizeCategory, Stage, ClayType } from "@/types";
 
@@ -80,48 +80,8 @@ const PieceEditForm = () => {
         <CardHeader>
           <CardTitle className="text-base">Photos</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {photos.length > 0 && (
-            <div className="grid grid-cols-3 gap-2">
-              {photos.map((src, idx) => (
-                <div key={idx} className="space-y-2">
-                  <img src={src} alt={`${title || piece.title} photo ${idx + 1}`} className="w-full aspect-square object-cover rounded-md border" />
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => {
-                        setPhotos((prev) => {
-                          const copy = [...prev];
-                          const [chosen] = copy.splice(idx, 1);
-                          return [chosen, ...copy];
-                        });
-                      }}
-                    >
-                      Set as thumbnail
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPhotos((prev) => prev.filter((_, i) => i !== idx))}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          <CameraCapture
-            value={null}
-            onChange={(data) => {
-              if (!data) return;
-              setPhotos((prev) => [data, ...prev]);
-            }}
-            label="+ Add Photo"
-          />
+        <CardContent>
+          <MultiPhotoPicker photos={photos} onChange={setPhotos} />
         </CardContent>
       </Card>
 
