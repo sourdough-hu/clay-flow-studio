@@ -31,7 +31,7 @@ const Gallery = () => {
           case "stage":
             return p.current_stage === filter.value;
           case "size":
-            return p.size_category === filter.value;
+            return p.form === filter.value;
           case "clayType":
             return p.clay_type === filter.value;
           default:

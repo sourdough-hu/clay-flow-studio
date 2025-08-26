@@ -91,7 +91,7 @@ const Tasks = () => {
             case "stage":
               return t.piece.current_stage === filter.value;
             case "size":
-              return t.piece.size_category === filter.value;
+              return t.piece.form === filter.value;
             case "clayType":
               return t.piece.clay_type === filter.value;
             default:
@@ -134,7 +134,7 @@ const Tasks = () => {
             case "stage":
               return t.piece.current_stage === filter.value;
             case "size":
-              return t.piece.size_category === filter.value;
+              return t.piece.form === filter.value;
             case "clayType":
               return t.piece.clay_type === filter.value;
             default:

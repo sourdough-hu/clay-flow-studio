@@ -1,4 +1,12 @@
-export type SizeCategory = "Tiny" | "Small" | "Medium" | "Large" | "Extra Large";
+export type PotteryForm = 
+  | "Mug / Cup"
+  | "Bowl"
+  | "Vase"
+  | "Plate"
+  | "Pitcher"
+  | "Teapot"
+  | "Sculpture"
+  | "Others";
 
 export type ClayType = 
   | "Stoneware"
@@ -6,8 +14,9 @@ export type ClayType =
   | "Earthenware"
   | "Terracotta"
   | "Speckled Stoneware"
+  | "Nerikomi"
   | "Recycled / Mixed"
-  | "Other";
+  | "Others";
 
 export type Stage =
   | "throwing"
@@ -16,7 +25,6 @@ export type Stage =
   | "bisque_firing"
   | "glazing"
   | "glaze_firing"
-  | "decorating"
   | "finished";
 
 export interface StageEntry {
@@ -35,7 +43,8 @@ export interface Piece {
   title: string;
   photos: string[]; // data URLs or http(s) URLs; first item is thumbnail
   start_date?: string; // ISO
-  size_category?: SizeCategory;
+  form?: PotteryForm;
+  form_details?: string; // for "Others" form selection
   current_stage: Stage;
   storage_location?: string;
   notes?: string;
@@ -47,7 +56,12 @@ export interface Piece {
   stage_history?: StageEntry[];
   history?: HistoryEvent[];
   clay_type?: ClayType;
-  clay_subtype?: string;
+  clay_body_details?: string; // replaces clay_subtype, always shown
+  glaze?: string;
+  carving?: string;
+  slip?: string;
+  underglaze?: string;
+  inspiration_links?: string[]; // array of inspiration IDs
 }
 
 export interface Inspiration {

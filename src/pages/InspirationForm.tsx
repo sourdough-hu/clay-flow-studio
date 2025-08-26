@@ -13,7 +13,7 @@ function scoreMatch(inspTags: string[], piece: Piece): number {
   const pTags = new Set((piece.tags ?? []).map((t) => t.toLowerCase()));
   let score = 0;
   inspTags.forEach((t) => { if (pTags.has(t.toLowerCase())) score += 2; });
-  if (piece.size_category) score += 0.5;
+  if (piece.form) score += 0.5;
   return score;
 }
 

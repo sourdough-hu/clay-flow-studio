@@ -11,7 +11,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { ClayType, SizeCategory, Stage } from "@/types";
+import { ClayType, PotteryForm, Stage } from "@/types";
 
 export interface FilterValue {
   type: "stage" | "size" | "clayType";
@@ -25,9 +25,9 @@ interface FilterBottomSheetProps {
   hideStage?: boolean;
 }
 
-const stageOptions: Stage[] = ["throwing","trimming","drying","bisque_firing","decorating","glazing","glaze_firing","finished"];
-const sizeOptions: SizeCategory[] = ["Tiny","Small","Medium","Large","Extra Large"];
-const clayTypeOptions: ClayType[] = ["Stoneware","Porcelain","Earthenware","Terracotta","Speckled Stoneware","Recycled / Mixed","Other"];
+const stageOptions: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","finished"];
+const formOptions: PotteryForm[] = ["Mug / Cup", "Bowl", "Vase", "Plate", "Pitcher", "Teapot", "Sculpture", "Others"];
+const clayTypeOptions: ClayType[] = ["Stoneware","Porcelain","Earthenware","Terracotta","Speckled Stoneware","Nerikomi","Recycled / Mixed","Others"];
 
 const formatStage = (stage: string) => stage.replace("_"," ").charAt(0).toUpperCase() + stage.replace("_"," ").slice(1);
 
@@ -141,7 +141,7 @@ export function FilterBottomSheet({ activeFilters, onFiltersChange, hideStage = 
                       {formatStage(option)}
                     </Button>
                   ))}
-                  {selectedFilterType === "size" && sizeOptions.map((option) => (
+                  {selectedFilterType === "size" && formOptions.map((option) => (
                     <Button
                       key={option}
                       variant="outline"

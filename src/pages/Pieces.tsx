@@ -31,7 +31,7 @@ const Pieces = () => {
           case "stage":
             return p.current_stage === filter.value;
           case "size":
-            return p.size_category === filter.value;
+            return p.form === filter.value;
           case "clayType":
             return p.clay_type === filter.value;
           default:
@@ -76,8 +76,8 @@ const Pieces = () => {
                 <CardContent className="pt-0 text-sm text-muted-foreground">
                   <div className="flex flex-wrap gap-3">
                     <span>Stage: <span className="text-foreground font-medium">{p.current_stage.replace("_"," ")}</span></span>
-                    {p.clay_type && p.clay_subtype && (
-                      <span>Clay: <span className="text-foreground font-medium">{p.clay_type} — {p.clay_subtype}</span></span>
+                    {p.clay_type && (
+                      <span>Clay: <span className="text-foreground font-medium">{p.clay_type}{p.clay_body_details && ` — ${p.clay_body_details}`}</span></span>
                     )}
                     {p.next_reminder_at && (
                       <span>Next checkpoint: <span className="text-foreground font-medium">{new Date(p.next_reminder_at).toLocaleDateString()}</span></span>

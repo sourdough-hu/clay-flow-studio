@@ -35,14 +35,15 @@ const PieceDetail = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">{piece.title}</h1>
         <div className="flex items-center gap-2">
-          {piece.size_category && <span className="text-sm text-muted-foreground">{piece.size_category}</span>}
+          {piece.form && <span className="text-sm text-muted-foreground">{piece.form}</span>}
           <Link to={`/edit/piece/${piece.id}`} className="text-sm underline underline-offset-4 text-primary">Edit Piece</Link>
         </div>
       </div>
       
-      {piece.clay_type && piece.clay_subtype && (
+      {piece.clay_type && (
         <div className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Clay:</span> {piece.clay_type} — {piece.clay_subtype}
+          <span className="font-medium text-foreground">Clay:</span> {piece.clay_type}
+          {piece.clay_body_details && ` — ${piece.clay_body_details}`}
         </div>
       )}
 
