@@ -80,28 +80,19 @@ const PieceForm = () => {
       <SEO title="Pottery Tracker — New Piece" description="Log a new pottery piece with stage and details." />
       <h1 className="text-xl font-semibold">Log New Piece</h1>
       
-      {/* Section 1: Required */}
+      {/* Title and Photos Section */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Required</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="pt-6 space-y-4">
           <Input 
             placeholder="Title (required)" 
             value={title} 
             onChange={(e) => setTitle(e.target.value)} 
           />
-        </CardContent>
-      </Card>
-
-      {/* Photo Section */}
-      <Card>
-        <CardContent className="pt-6">
           <MultiPhotoPicker 
-            label="Add photos" 
             photos={photos} 
             onChange={setPhotos}
             maxPhotos={20}
+            showButtons={false}
           />
         </CardContent>
       </Card>
