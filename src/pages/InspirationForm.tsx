@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Inspiration, Piece } from "@/types";
 import { addInspiration, getPieces } from "@/lib/storage";
-import { linkPieceAndInspiration } from "@/lib/supabase-links";
 import { SEO } from "@/components/SEO";
 import MultiPhotoPicker from "@/components/MultiPhotoPicker";
 
@@ -36,7 +35,7 @@ const InspirationForm = () => {
       .map((s) => s.p);
   }, [tags, pieces]);
 
-  const onSubmit = async () => {
+  const onSubmit = () => {
     const id = (crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2));
     const item: Inspiration = {
       id,
@@ -49,16 +48,6 @@ const InspirationForm = () => {
       created_at: new Date().toISOString(),
     };
     addInspiration(item);
-
-    // If linking to a piece, create the link in Supabase
-    if (linkTo) {
-      try {
-        await linkPieceAndInspiration(linkTo, id);
-      } catch (error) {
-        console.error('Failed to create piece-inspiration link:', error);
-      }
-    }
-
     navigate("/inspirations");
   };
 
