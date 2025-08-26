@@ -55,7 +55,7 @@ export async function ensureAuthWithPrompt(): Promise<Session> {
   
   // 3) If still no session, show user-friendly error
   if (!s) {
-    throw new Error('Please sign in to save links between pieces and inspirations. Your inspiration has been saved.');
+    throw new Error('Please sign in to link pieces with inspirations. Your content has been saved locally.');
   }
   
   return s; // valid session

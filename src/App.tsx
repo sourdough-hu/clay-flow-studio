@@ -21,19 +21,22 @@ import OnboardingGate from "./components/OnboardingGate";
 import ForgotPassword from "./pages/ForgotPassword";
 import AppShell from "./components/AppShell";
 import SupabaseSessionSync from "./components/SupabaseSessionSync";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <SupabaseSessionSync />
-      <BrowserRouter>
-        <AppShell />
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <SupabaseSessionSync />
+        <BrowserRouter>
+          <AppShell />
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

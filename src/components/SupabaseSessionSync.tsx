@@ -1,12 +1,21 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
+import MigrationDialog from "@/components/MigrationDialog";
+import { getPieces, getInspirations } from "@/lib/storage";
 
 const SupabaseSessionSync = () => {
   const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [showMigration, setShowMigration] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    const checkForLocalData = () => {
+      const pieces = getPieces();
+      const inspirations = getInspirations();
+      return pieces.length > 0 || inspirations.length > 0;
+    };
+
     const migrateGuestData = async (userId: string) => {
       try {
         // Check if user has guest data to migrate
@@ -30,9 +39,6 @@ const SupabaseSessionSync = () => {
           }
         }
         
-        // TODO: Migrate local pieces and inspirations data to Supabase
-        // This would involve reading from localStorage and inserting into respective tables
-        
         // Clean up guest data
         localStorage.removeItem("pt_guest_name");
         localStorage.removeItem("pt_onboarding_skipped");
@@ -46,6 +52,11 @@ const SupabaseSessionSync = () => {
         // Migrate guest data on sign in
         if (event === 'SIGNED_IN') {
           await migrateGuestData(session.user.id);
+          
+          // Check if there's local data to migrate
+          if (checkForLocalData()) {
+            setShowMigration(true);
+          }
         }
         
         // Check if user needs profile setup
@@ -151,6 +162,10 @@ const SupabaseSessionSync = () => {
     }
   };
 
+  const handleMigrationComplete = () => {
+    setShowMigration(false);
+  };
+
   return (
     <>
       {showProfileSetup && userId && (
@@ -158,6 +173,13 @@ const SupabaseSessionSync = () => {
           open={showProfileSetup}
           onComplete={handleProfileSetupComplete}
           userId={userId}
+        />
+      )}
+      {showMigration && (
+        <MigrationDialog
+          open={showMigration}
+          onClose={() => setShowMigration(false)}
+          onComplete={handleMigrationComplete}
         />
       )}
     </>

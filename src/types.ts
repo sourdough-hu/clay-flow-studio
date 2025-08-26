@@ -62,10 +62,12 @@ export interface Piece {
   slip?: string;
   underglaze?: string;
   inspiration_links?: string[]; // array of inspiration IDs
+  remote_id?: string; // Supabase ID when synced
 }
 
 export interface Inspiration {
   id: string;
+  title?: string; // Add title property for consistency
   image_url?: string; // kept for backward compatibility (thumbnail)
   photos?: string[]; // multiple photos; first one is thumbnail
   link_url?: string;
@@ -73,6 +75,7 @@ export interface Inspiration {
   tags?: string[];
   linked_piece_id?: string | null; // legacy single link
   created_at: string; // ISO
+  remote_id?: string; // Supabase ID when synced
 }
 
 export interface PieceInspirationLink {

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getPieceById, upsertPiece } from "@/lib/storage";
-import { getInspirationsForPiece } from "@/lib/supabase-links";
+import LinkedItemsPod from "@/components/LinkedItemsPod";
 import { advanceStage, stageOrder } from "@/lib/stage";
 import { SEO } from "@/components/SEO";
 import PhotoGallery from "@/components/PhotoGallery";
@@ -86,37 +86,6 @@ const PieceDetail = () => {
     setInspViewerIndex(index);
     setInspViewerOpen(true);
   };
-
-  // Get linked inspirations and flatten all photos
-  const [linkedInspirations, setLinkedInspirations] = useState<any[]>([]);
-  
-  useEffect(() => {
-    const fetchLinkedInspirations = async () => {
-      if (piece?.id) {
-        const inspirations = await getInspirationsForPiece(piece.id);
-        setLinkedInspirations(inspirations);
-        console.table({ fromJoinTable: inspirations.map(x => x.id) });
-      }
-    };
-    fetchLinkedInspirations();
-  }, [piece?.id]);
-
-  const inspPhotos = useMemo(() => {
-    return linkedInspirations.flatMap((insp, inspIndex) => {
-      // Handle both photos array and image_url fallback
-      const images = insp.photos && insp.photos.length > 0 
-        ? insp.photos 
-        : insp.image_url ? [insp.image_url] : [];
-      
-      return images.map((url, photoIndex) => ({
-        inspId: insp.id,
-        inspIndex,
-        photoIndex,
-        id: `${insp.id}-${photoIndex}`,
-        url: url
-      }));
-    });
-  }, [linkedInspirations]);
 
   // Check if any About fields have content
   const hasAboutContent = piece.form || piece.current_stage || piece.clay_type || piece.clay_body_details;
@@ -345,37 +314,8 @@ const PieceDetail = () => {
           </Card>
         )}
 
-        {/* Inspirations Section */}
-        {inspPhotos.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="section-header">Inspirations</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {showInspHint && (
-                <div className="text-xs text-muted-foreground mb-2">
-                  Tap an inspiration to view
-                </div>
-              )}
-              <div className="flex gap-2 overflow-x-auto thumb-row">
-                {inspPhotos.map((photo, index) => (
-                  <button
-                    key={photo.id}
-                    onClick={() => openInspirationViewer(index)}
-                    className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-muted-foreground/25 hover:border-muted-foreground/50 transition-all"
-                    aria-label={`Open inspiration photo ${index + 1} of ${inspPhotos.length}`}
-                  >
-                    <img
-                      src={photo.url}
-                      alt={`Inspiration ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Linked Inspirations */}
+        <LinkedItemsPod mode="inspirations" itemId={piece.id} />
 
         {/* Adjust Next Checkpoint Dialog */}
         <Dialog open={showAdjust} onOpenChange={setShowAdjust}>
@@ -432,15 +372,7 @@ const PieceDetail = () => {
           />
         )}
         
-        {/* Inspiration Photo Gallery Viewer */}
-        {inspPhotos.length > 0 && inspViewerOpen && (
-          <PhotoGallery 
-            photos={inspPhotos.map(p => p.url)} 
-            initialIndex={inspViewerIndex}
-            autoOpen={true}
-            onClose={() => setInspViewerOpen(false)}
-          />
-        )}
+        {/* Note: Inspiration photo gallery functionality removed since we now use LinkedItemsPod */}
       </div>
     </main>
   );

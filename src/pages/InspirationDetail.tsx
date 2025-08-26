@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Inspiration, Piece } from "@/types";
 import { getInspirations, getPieces, updateInspiration } from "@/lib/storage";
 import { getPiecesForInspiration, safeUpsertLink, safeRemoveLink } from "@/lib/supabase-links";
+import LinkedItemsPod from "@/components/LinkedItemsPod";
 import { useToast } from "@/hooks/use-toast";
 
 const InspirationDetail = () => {
@@ -169,41 +170,13 @@ const InspirationDetail = () => {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Linked Pieces</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {isEditing ? (
-            <div className="grid grid-cols-1 gap-2">
-              {allPieces.map((p: Piece) => (
-                <label key={p.id} className="flex items-center gap-3 text-sm">
-                  <input type="checkbox" checked={selectedPieceIds.has(p.id)} onChange={() => togglePiece(p.id)} />
-                  <div className="flex items-center gap-2">
-                    {p.photos && p.photos[0] && (
-                      <img src={p.photos[0]} alt={`${p.title} thumbnail`} className="w-10 h-10 rounded object-cover border" />
-                    )}
-                    <span className="text-foreground">{p.title}</span>
-                  </div>
-                </label>
-              ))}
-            </div>
-          ) : null}
-
-          {linkedPieces.length > 0 && (
-            <div className="mt-2">
-              <div className="text-sm font-medium mb-2">Currently linked</div>
-              <div className="grid grid-cols-1 gap-3">
-                {linkedPieces.map((p) => (
-                  <Link to={`/piece/${p.id}`} key={p.id} className="block">
-                    <img src={p.photos?.[0] ?? "/placeholder.svg"} alt={`${p.title} thumbnail`} className="w-full aspect-video object-cover rounded border" />
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <LinkedItemsPod 
+        mode="pieces" 
+        itemId={inspiration.id}
+        isEditing={isEditing}
+        selectedIds={selectedPieceIds}
+        onToggleSelection={togglePiece}
+      />
     </main>
   );
 };
