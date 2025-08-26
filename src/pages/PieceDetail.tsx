@@ -51,7 +51,7 @@ const PieceDetail = () => {
       {/* Hero Image and Thumbnail Strip */}
       {piece.photos && piece.photos.length > 0 ? (
         <div className="relative">
-          {/* Hero Image - Show thumbnail (first photo) */}
+          {/* Hero Image - Show selected photo */}
           <div 
             className="relative w-full h-[45vh] overflow-hidden cursor-pointer"
             onClick={() => {
@@ -60,36 +60,38 @@ const PieceDetail = () => {
             }}
           >
             <img
-              src={getThumbnailUrl(piece.photos, piece.photos[0])}
-              alt={`${piece.title} - Thumbnail`}
+              src={getThumbnailUrl(piece.photos, piece.photos[selectedPhotoIndex])}
+              alt={`${piece.title} - Photo ${selectedPhotoIndex + 1}`}
               className="w-full h-full object-cover"
             />
           </div>
 
-          {/* Thumbnail Strip - Show other photos (excluding thumbnail) */}
+          {/* Thumbnail Strip - Show all photos except currently selected */}
           {piece.photos.length > 1 && (
             <div className="px-4 py-3 bg-background border-b">
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                {piece.photos.slice(1).map((photo, index) => (
-                  <button
-                    key={index + 1}
-                    onClick={() => {
-                      // Update hero to show this photo, then open gallery
-                      const galleryTrigger = document.querySelector('[data-photo-gallery-trigger]') as HTMLElement;
-                      setSelectedPhotoIndex(index + 1);
-                      galleryTrigger?.click();
-                    }}
-                    className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-muted-foreground/25 hover:border-muted-foreground/50 transition-all"
-                    aria-label={`Photo ${index + 2} of ${piece.photos.length}`}
-                  >
-                    <img
-                      src={getThumbnailUrl(piece.photos, photo)}
-                      alt={`Thumbnail ${index + 2}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
+                {piece.photos.map((photo, index) => (
+                  index !== selectedPhotoIndex && (
+                    <button
+                      key={photo || index}
+                      onClick={() => setSelectedPhotoIndex(index)}
+                      className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-muted-foreground/25 hover:border-muted-foreground/50 transition-all"
+                      aria-label={`Photo ${index + 1} of ${piece.photos.length}`}
+                    >
+                      <img
+                        src={getThumbnailUrl(piece.photos, photo)}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  )
                 ))}
               </div>
+              {piece.photos.length > 1 && (
+                <div className="text-center text-xs text-muted-foreground mt-2">
+                  Swipe thumbnails • {piece.photos.length} photos
+                </div>
+              )}
             </div>
           )}
         </div>
