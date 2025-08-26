@@ -93,11 +93,15 @@ const InspirationForm = () => {
           <CardTitle className="text-base">Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <MultiPhotoPicker label="Add photos" photos={photos} onChange={setPhotos} />
+          <MultiPhotoPicker 
+            photos={photos} 
+            onChange={setPhotos}
+            maxPhotos={20}
+            showButtons={false}
+          />
           <Input placeholder="Link URL" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} />
           <Input placeholder="Tags (comma separated)" value={tags} onChange={(e) => setTags(e.target.value)} />
           <Textarea placeholder="Note" value={note} onChange={(e) => setNote(e.target.value)} />
-
         </CardContent>
       </Card>
 
