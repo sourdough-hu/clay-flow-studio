@@ -83,7 +83,7 @@ const InspirationForm = () => {
   };
   return <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — New Inspiration" description="Capture a new inspiration and optionally link it to a piece." />
-      <h1 className="text-xl font-semibold">New Inspirations</h1>
+      <h1 className="text-xl font-semibold">Add a New Inspiration</h1>
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Details</CardTitle>
