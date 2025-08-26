@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Inspiration, Piece } from "@/types";
 import { addInspiration, getPieces } from "@/lib/storage";
-import { safeUpsertLink } from "@/lib/supabase-links";
+import { syncLinksAfterInspirationSave } from "@/lib/supabase-links";
+import { toast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
 import MultiPhotoPicker from "@/components/MultiPhotoPicker";
 
@@ -48,15 +49,30 @@ const InspirationForm = () => {
       linked_piece_id: linkTo || undefined,
       created_at: new Date().toISOString(),
     };
+    
+    // Save inspiration first
     addInspiration(item);
     
     // Create symmetric link using Supabase if piece is selected
     if (linkTo) {
       try {
-        await safeUpsertLink(linkTo, id);
-      } catch (error) {
-        console.error('Failed to create link:', error);
+        await syncLinksAfterInspirationSave(id, [linkTo], []);
+        toast({
+          title: "Inspiration saved",
+          description: "Successfully linked to piece",
+        });
+      } catch (error: any) {
+        const message = error?.message || 'Unknown error';
+        toast({
+          title: "Inspiration saved",
+          description: `But linking failed: ${message}`,
+          variant: "destructive",
+        });
       }
+    } else {
+      toast({
+        title: "Inspiration saved",
+      });
     }
     
     navigate("/inspirations");

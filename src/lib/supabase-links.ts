@@ -1,6 +1,29 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Piece, Inspiration } from "@/types";
 import { getPieces, getInspirations, getLinks } from "@/lib/storage";
+import { ensureAuthWithPrompt } from "@/lib/auth-guard";
+
+// Sequential link synchronization function
+export async function syncLinksAfterInspirationSave(
+  inspirationId: string, 
+  toLink: string[], 
+  toUnlink: string[]
+) {
+  // Ensure valid authentication before any link operations
+  await ensureAuthWithPrompt();
+  
+  console.table([...toLink].map(id => ({ pieceId: id, inspId: inspirationId, operation: 'link' })));
+  console.table([...toUnlink].map(id => ({ pieceId: id, inspId: inspirationId, operation: 'unlink' })));
+  
+  // Run sequentially for clearer error diagnosis
+  for (const pieceId of toLink) {
+    await safeUpsertLink(pieceId, inspirationId);
+  }
+  
+  for (const pieceId of toUnlink) {
+    await safeRemoveLink(pieceId, inspirationId);
+  }
+}
 
 // Symmetric linking functions for pieces and inspirations
 // Safe wrapper functions with detailed logging
@@ -8,6 +31,9 @@ export async function safeUpsertLink(pieceId: string, inspId: string) {
   try {
     if (!pieceId || typeof pieceId !== 'string') throw new Error('invalid pieceId');
     if (!inspId || typeof inspId !== 'string') throw new Error('invalid inspirationId');
+    
+    // Ensure valid authentication before proceeding
+    await ensureAuthWithPrompt();
     
     console.log('[Link Upsert] Attempting:', { pieceId, inspId });
     const res = await linkPieceAndInspiration(pieceId, inspId);
@@ -23,6 +49,9 @@ export async function safeUpsertLink(pieceId: string, inspId: string) {
 
 export async function safeRemoveLink(pieceId: string, inspId: string) {
   try {
+    // Ensure valid authentication before proceeding
+    await ensureAuthWithPrompt();
+    
     console.log('[Link Remove] Attempting:', { pieceId, inspId });
     const res = await unlinkPieceAndInspiration(pieceId, inspId);
     console.log('[Link Remove] Success:', { pieceId, inspId });
@@ -41,8 +70,9 @@ export async function linkPieceAndInspiration(pieceId: string, inspirationId: st
     const pid = String(pieceId);
     const iid = String(inspirationId);
     
-    const { data: user, error: userError } = await supabase.auth.getUser();
-    if (userError || !user?.user?.id) {
+    // Get current session (should already be validated by ensureAuthWithPrompt)
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user?.id) {
       throw new Error('User not authenticated');
     }
 
@@ -51,7 +81,7 @@ export async function linkPieceAndInspiration(pieceId: string, inspirationId: st
       .upsert({ 
         piece_id: pid, 
         inspiration_id: iid, 
-        user_id: user.user.id 
+        user_id: session.user.id 
       }, {
         onConflict: 'piece_id,inspiration_id',
         ignoreDuplicates: true
