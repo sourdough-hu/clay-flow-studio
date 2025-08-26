@@ -82,7 +82,7 @@ export default function SubscriptionBottomSheet({
         aria-label="Upgrade to Maker Pro"
       >
         {/* Sticky Header */}
-        <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b px-6 py-4 z-10">
+        <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b px-6 py-2 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
