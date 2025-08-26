@@ -8,15 +8,19 @@ interface PhotoGalleryProps {
   photos: string[];
   initialIndex?: number;
   className?: string;
+  autoOpen?: boolean;
+  onClose?: () => void;
 }
 
 // Photo gallery with carousel and fullscreen viewer
 const PhotoGallery: React.FC<PhotoGalleryProps> = ({ 
   photos, 
   initialIndex = 0, 
-  className 
+  className,
+  autoOpen = false,
+  onClose
 }) => {
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(autoOpen ? initialIndex : null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   const openFullscreen = (index: number) => {
@@ -26,6 +30,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({
 
   const closeFullscreen = () => {
     setSelectedIndex(null);
+    onClose?.();
   };
 
   const goToPrevious = () => {

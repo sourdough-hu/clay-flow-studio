@@ -42,6 +42,15 @@ const PieceDetail = () => {
   const defaultStage = stageOrder[nextIdx] ?? piece.current_stage;
   const [adjStage, setAdjStage] = useState<Stage>(defaultStage);
   const [adjDate, setAdjDate] = useState<string>(piece.next_reminder_at ? new Date(piece.next_reminder_at).toISOString().slice(0,10) : "");
+  
+  // Photo viewer state
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  
+  const openViewer = (index: number) => {
+    setViewerIndex(index);
+    setViewerOpen(true);
+  };
 
   // Check if any About fields have content
   const hasAboutContent = piece.form || piece.current_stage || piece.clay_type || piece.clay_body_details;
@@ -64,10 +73,7 @@ const PieceDetail = () => {
           {/* Hero Image - Always show cover (index 0) */}
           <div 
             className="relative w-full h-[45vh] overflow-hidden cursor-pointer"
-            onClick={() => {
-              const galleryTrigger = document.querySelector('[data-photo-gallery-trigger]') as HTMLElement;
-              galleryTrigger?.click();
-            }}
+            onClick={() => openViewer(0)}
           >
             <img
               src={piece.photos[0]}
@@ -80,23 +86,16 @@ const PieceDetail = () => {
           <div className="px-4 py-3 bg-background border-b">
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {piece.photos.map((photo, index) => (
-                <button
-                  key={photo || index}
-                  onClick={() => {
-                    const gallery = document.querySelector('[data-photo-gallery]') as HTMLElement;
-                    // Set the PhotoGallery to start at this index
-                    const photoGalleryComponent = document.querySelector('.photo-gallery-component') as any;
-                    if (photoGalleryComponent) {
-                      photoGalleryComponent.openFullscreen?.(index);
-                    }
-                  }}
-                  className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                    index === 0 
-                      ? 'border-primary ring-1 ring-primary/20' 
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-                  }`}
-                  aria-label={`Photo ${index + 1} of ${piece.photos.length}${index === 0 ? ' (Cover)' : ''}`}
-                >
+                 <button
+                   key={photo || index}
+                   onClick={() => openViewer(index)}
+                   className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                     index === 0 
+                       ? 'border-primary ring-1 ring-primary/20' 
+                       : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                   }`}
+                   aria-label={`Open photo ${index + 1} of ${piece.photos.length}${index === 0 ? ' (Cover)' : ''}`}
+                 >
                   <img
                     src={photo}
                     alt={`Thumbnail ${index + 1}${index === 0 ? ' (Cover)' : ''}`}
@@ -352,19 +351,14 @@ const PieceDetail = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Photo Gallery for full-screen viewing */}
-        {piece.photos && (
-          <div className="fixed bottom-4 right-4 opacity-0 pointer-events-none">
-            <PhotoGallery photos={piece.photos} initialIndex={0} />
-            <button 
-              data-photo-gallery-trigger
-              className="hidden"
-              onClick={() => {
-                const gallery = document.querySelector('[data-photo-gallery]') as HTMLElement;
-                gallery?.click();
-              }}
-            />
-          </div>
+        {/* Photo Gallery Viewer */}
+        {piece.photos && viewerOpen && (
+          <PhotoGallery 
+            photos={piece.photos} 
+            initialIndex={viewerIndex}
+            autoOpen={true}
+            onClose={() => setViewerOpen(false)}
+          />
         )}
       </div>
     </main>
