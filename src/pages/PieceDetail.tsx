@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getPieceById, upsertPiece, getInspirationsForPiece } from "@/lib/storage";
+import { getPieceById, upsertPiece } from "@/lib/storage";
 import { advanceStage, stageOrder } from "@/lib/stage";
 import { SEO } from "@/components/SEO";
 import PhotoGallery from "@/components/PhotoGallery";
 import { Stage } from "@/types";
+import { getInspirationsForPiece } from "@/lib/supabase-links";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getThumbnailUrl } from "@/lib/photos";
 import { Edit, ZoomIn } from "lucide-react";
@@ -87,7 +88,23 @@ const PieceDetail = () => {
   };
 
   // Get linked inspirations and flatten all photos
-  const linkedInspirations = getInspirationsForPiece(piece.id);
+  const [linkedInspirations, setLinkedInspirations] = useState<any[]>([]);
+  const [loadingInspirations, setLoadingInspirations] = useState(true);
+
+  useEffect(() => {
+    const loadInspirations = async () => {
+      try {
+        const inspirations = await getInspirationsForPiece(piece.id);
+        setLinkedInspirations(inspirations);
+      } catch (error) {
+        console.error('Failed to load inspirations:', error);
+      } finally {
+        setLoadingInspirations(false);
+      }
+    };
+    loadInspirations();
+  }, [piece.id]);
+
   const inspPhotos = useMemo(() => {
     return linkedInspirations.flatMap((insp, inspIndex) => {
       // Handle both photos array and image_url fallback

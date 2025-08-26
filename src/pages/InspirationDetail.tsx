@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,8 @@ import MultiPhotoPicker from "@/components/MultiPhotoPicker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Inspiration, Piece } from "@/types";
-import { getInspirations, getPieces, getPiecesForInspiration, setInspirationLinks, updateInspiration } from "@/lib/storage";
+import { getInspirations, getPieces, updateInspiration } from "@/lib/storage";
+import { getPiecesForInspiration, setInspirationLinks } from "@/lib/supabase-links";
 
 const InspirationDetail = () => {
   const { id } = useParams();
@@ -16,7 +17,23 @@ const InspirationDetail = () => {
 
   const inspiration = useMemo(() => getInspirations().find((i) => i.id === id), [id]);
   const allPieces = getPieces();
-  const linkedPieces = id ? getPiecesForInspiration(id) : [];
+  const [linkedPieces, setLinkedPieces] = useState<Piece[]>([]);
+  const [loadingPieces, setLoadingPieces] = useState(true);
+
+  useEffect(() => {
+    const loadLinkedPieces = async () => {
+      if (!id) return;
+      try {
+        const pieces = await getPiecesForInspiration(id);
+        setLinkedPieces(pieces);
+      } catch (error) {
+        console.error('Failed to load linked pieces:', error);
+      } finally {
+        setLoadingPieces(false);
+      }
+    };
+    loadLinkedPieces();
+  }, [id]);
 
   const [note, setNote] = useState<string>(inspiration?.note ?? "");
   const [tags, setTags] = useState<string>((inspiration?.tags ?? []).join(", "));
@@ -35,7 +52,7 @@ const InspirationDetail = () => {
     setSelectedPieceIds((prev) => prev.includes(pid) ? prev.filter((x) => x !== pid) : [...prev, pid]);
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     const updated: Inspiration = {
       ...inspiration,
       note: note || undefined,
@@ -44,8 +61,13 @@ const InspirationDetail = () => {
       image_url: photos[0] || inspiration.image_url,
     };
     updateInspiration(updated);
-    setInspirationLinks(inspiration.id, selectedPieceIds);
-    navigate(0);
+    
+    try {
+      await setInspirationLinks(inspiration.id, selectedPieceIds);
+      navigate(0);
+    } catch (error) {
+      console.error('Failed to save inspiration links:', error);
+    }
   };
 
   return (
