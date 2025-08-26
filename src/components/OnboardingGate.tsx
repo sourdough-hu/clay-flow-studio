@@ -16,13 +16,13 @@ export const OnboardingGate = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const allowList = ["/onboarding", "/account", "/auth"];
+    const allowList = ["/auth", "/account", "/forgot-password"];
     const has = hasUserOrGuest();
-    const atOnboarding = location.pathname === "/onboarding";
+    const atAuth = location.pathname === "/auth";
 
     if (!has && !allowList.includes(location.pathname)) {
-      navigate("/onboarding", { replace: true });
-    } else if (has && atOnboarding) {
+      navigate("/auth", { replace: true });
+    } else if (has && atAuth) {
       navigate("/", { replace: true });
     }
   }, [location.pathname, navigate]);

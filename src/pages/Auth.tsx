@@ -18,6 +18,7 @@ const Auth = () => {
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpDisplayName, setSignUpDisplayName] = useState("");
+  const [guestName, setGuestName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showVerificationMessage, setShowVerificationMessage] = useState(false);
@@ -124,6 +125,20 @@ const Auth = () => {
     }
   };
 
+  const handleGuestSave = async () => {
+    const trimmed = guestName.trim();
+    if (!trimmed) return;
+    
+    try {
+      localStorage.setItem("pt_guest_name", trimmed);
+      localStorage.removeItem("pt_onboarding_skipped");
+    } catch {
+      // Handle localStorage errors gracefully
+    }
+    
+    navigate("/", { replace: true });
+  };
+
   if (showVerificationMessage) {
     return (
       <main className="min-h-screen p-4">
@@ -152,11 +167,11 @@ const Auth = () => {
     <main className="min-h-screen p-4">
       <SEO title="Sign in or Create Account — Pottery Tracker" description="Sign in or create an account to sync your pottery data." />
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome Back</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Welcome</h1>
         <p className="text-sm text-muted-foreground mt-1">Sign in to your account or create a new one</p>
       </header>
 
-      <section className="max-w-md mx-auto">
+      <section className="max-w-md mx-auto space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Authentication</CardTitle>
@@ -286,6 +301,41 @@ const Auth = () => {
                 </Button>
               </TabsContent>
             </Tabs>
+          </CardContent>
+        </Card>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">OR</span>
+          </div>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Or use as a guest</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">Tell us how we should address you:</p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input
+              placeholder="Your name"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+            />
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              onClick={handleGuestSave} 
+              disabled={!guestName.trim()}
+              className="w-full"
+            >
+              Continue as guest
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              Guest mode has limited features. Your work is stored locally. Create an account to sync across devices.
+            </p>
           </CardContent>
         </Card>
       </section>
