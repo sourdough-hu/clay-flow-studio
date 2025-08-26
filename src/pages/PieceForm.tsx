@@ -104,28 +104,32 @@ const PieceForm = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Form Row */}
-          <div className="flex items-center gap-4">
-            <div className="w-20 text-sm font-medium text-foreground">Form</div>
-            <div className="flex-1">
-              <Select value={form} onValueChange={setForm}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select form" />
-                </SelectTrigger>
-                <SelectContent>
-                  {forms.map((f) => (
-                    <SelectItem key={f} value={f}>{f}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form === "Others" && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-4">
+              <div className="w-20 text-sm font-medium text-foreground">Form</div>
+              <div className="flex-1">
+                <Select value={form} onValueChange={setForm}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select form" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {forms.map((f) => (
+                      <SelectItem key={f} value={f}>{f}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {form === "Others" && (
+              <div className="ml-12 space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Form details (optional)</label>
                 <Input 
                   placeholder="Details (optional)" 
                   value={formDetails} 
                   onChange={(e) => setFormDetails(e.target.value)}
-                  className="mt-2"
                 />
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Stage Row */}
@@ -148,19 +152,24 @@ const PieceForm = () => {
           </div>
 
           {/* Clay Body Row */}
-          <div className="flex items-center gap-4">
-            <div className="w-20 text-sm font-medium text-foreground">Clay Body</div>
-            <div className="flex-1 space-y-2">
-              <Select value={clayType} onValueChange={setClayType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Clay Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clayTypes.map((t) => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="space-y-2">
+            <div className="flex items-center gap-4">
+              <div className="w-20 text-sm font-medium text-foreground">Clay Body</div>
+              <div className="flex-1">
+                <Select value={clayType} onValueChange={setClayType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Clay Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clayTypes.map((t) => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="ml-12 space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Specific clay body (optional)</label>
               <Input 
                 placeholder="e.g., B-Mix" 
                 value={clayBodyDetails} 
