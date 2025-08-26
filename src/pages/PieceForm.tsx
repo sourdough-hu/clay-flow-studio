@@ -81,7 +81,7 @@ const PieceForm = () => {
       <h1 className="text-xl font-semibold">Log a New Piece</h1>
       
       {/* Title and Photos Section */}
-      <Card>
+      <Card className="overflow-visible relative">{/* Ensure card doesn't clip badges */}
         <CardContent className="pt-6 space-y-4">
           <Input 
             placeholder="Title (required)" 

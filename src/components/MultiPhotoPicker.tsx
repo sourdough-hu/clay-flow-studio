@@ -177,44 +177,53 @@ const MultiPhotoPicker: React.FC<MultiPhotoPickerProps> = ({
 
       {/* Horizontal Photo Strip */}
       {!showButtons && (
-        <div className="flex gap-3 overflow-x-auto pb-2 px-1">
+        <div className="flex gap-3 overflow-x-auto overflow-y-visible pt-2.5 pb-2.5 px-2">
           {/* Photo Thumbnails */}
           {photos.map((photo, index) => (
             <div
               key={`${photo}-${index}`}
-              className="relative flex-shrink-0 w-20 h-20 overflow-visible group"
+              className="relative flex-shrink-0 overflow-visible group inline-block"
+              style={{ width: '80px', height: '80px' }}
             >
-              <div className="w-full h-full rounded-xl border bg-muted overflow-hidden">
-                <img 
-                  src={photo} 
-                  alt={`Photo ${index + 1}`}
-                  className="w-full h-full object-cover cursor-pointer"
-                  onClick={() => {
-                    // Open full screen viewer - for now just a simple modal
-                    const modal = document.createElement('div');
-                    modal.className = 'fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4';
-                    modal.innerHTML = `
-                      <div class="relative max-w-full max-h-full">
-                        <img src="${photo}" alt="Full size" class="max-w-full max-h-full object-contain rounded-lg" />
-                        <button id="close-modal" class="absolute top-2 right-2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70">
-                          ✕
-                        </button>
-                      </div>
-                    `;
-                    document.body.appendChild(modal);
-                    
-                    const closeModal = () => document.body.removeChild(modal);
-                    modal.addEventListener('click', (e) => {
-                      if (e.target === modal) closeModal();
-                    });
-                    document.getElementById('close-modal')?.addEventListener('click', closeModal);
-                  }}
-                />
-              </div>
+              <img 
+                src={photo} 
+                alt={`Photo ${index + 1}`}
+                className="block w-full h-full object-cover cursor-pointer border border-border shadow-sm"
+                style={{ borderRadius: '12px' }}
+                onClick={() => {
+                  // Open full screen viewer
+                  const modal = document.createElement('div');
+                  modal.className = 'fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4';
+                  modal.innerHTML = `
+                    <div class="relative max-w-full max-h-full">
+                      <img src="${photo}" alt="Full size" class="max-w-full max-h-full object-contain rounded-lg" />
+                      <button id="close-modal" class="absolute top-2 right-2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70">
+                        ✕
+                      </button>
+                    </div>
+                  `;
+                  document.body.appendChild(modal);
+                  
+                  const closeModal = () => document.body.removeChild(modal);
+                  modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal();
+                  });
+                  document.getElementById('close-modal')?.addEventListener('click', closeModal);
+                }}
+              />
               
-              {/* Thumbnail indicator - crown for first photo */}
+              {/* Crown badge - thumbnail indicator for first photo */}
               {index === 0 && (
-                <div className="absolute -top-1.5 -left-1.5 z-10 bg-primary text-primary-foreground rounded-full p-1.5 shadow-lg pointer-events-none">
+                <div 
+                  className="absolute bg-primary text-primary-foreground rounded-full p-1.5 pointer-events-none"
+                  style={{
+                    top: '-6px',
+                    left: '-6px',
+                    zIndex: 10,
+                    borderRadius: '9999px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                  }}
+                >
                   <Crown className="h-3 w-3" />
                 </div>
               )}
@@ -222,7 +231,14 @@ const MultiPhotoPicker: React.FC<MultiPhotoPickerProps> = ({
               {/* Delete button */}
               <button
                 type="button"
-                className="absolute -top-1.5 -right-1.5 z-10 bg-destructive text-destructive-foreground rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute bg-destructive text-destructive-foreground rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{
+                  top: '-6px',
+                  right: '-6px',
+                  zIndex: 10,
+                  borderRadius: '9999px',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                }}
                 onClick={() => {
                   const newPhotos = photos.filter((_, i) => i !== index);
                   onChange(newPhotos);
@@ -236,7 +252,12 @@ const MultiPhotoPicker: React.FC<MultiPhotoPickerProps> = ({
           {/* Add Photo Button - always visible at end until max reached */}
           {photos.length < maxPhotos && (
             <div
-              className="flex-shrink-0 w-20 h-20 border-2 border-dashed border-muted-foreground/25 rounded-xl flex items-center justify-center cursor-pointer hover:border-muted-foreground/50 transition-colors"
+              className="flex-shrink-0 border-2 border-dashed border-muted-foreground/25 flex items-center justify-center cursor-pointer hover:border-muted-foreground/50 transition-colors"
+              style={{ 
+                width: '80px', 
+                height: '80px', 
+                borderRadius: '12px' 
+              }}
               onClick={showPhotoOptions}
             >
               <div className="text-center">
