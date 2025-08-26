@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,10 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import MultiPhotoPicker from "@/components/MultiPhotoPicker";
-import { getPieceById, upsertPiece, getInspirations } from "@/lib/storage";
+import { getPieceById, upsertPiece } from "@/lib/storage";
 import { Piece, PotteryForm, Stage, ClayType } from "@/types";
-import { getThumbnailUrl } from "@/lib/photos";
-import { X } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import LinkedItemsPod from "@/components/LinkedItemsPod";
+import { syncLinksAfterPieceSave, getInspirationsForPiece } from "@/lib/supabase-links";
+import { useToast } from "@/hooks/use-toast";
 
 const forms: PotteryForm[] = ["Mug / Cup", "Bowl", "Vase", "Plate", "Pitcher", "Teapot", "Sculpture", "Others"];
 const stages: Stage[] = ["throwing","trimming","drying","bisque_firing","glazing","glaze_firing","finished"];
@@ -33,13 +35,48 @@ const PieceEditForm = () => {
   const [slip, setSlip] = useState(piece?.slip ?? "");
   const [underglaze, setUnderglaze] = useState(piece?.underglaze ?? "");
   const [notes, setNotes] = useState(piece?.notes ?? "");
-  const [selectedInspirations, setSelectedInspirations] = useState<string[]>(piece?.inspiration_links ?? []);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedInspirationIds, setSelectedInspirationIds] = useState<Set<string>>(new Set());
+  const [originalInspirationIds, setOriginalInspirationIds] = useState<Set<string>>(new Set());
   
-  const inspirations = getInspirations();
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+
+  // Load linked inspirations when editing starts
+  useEffect(() => {
+    const loadLinkedInspirations = async () => {
+      if (!isAuthenticated || !piece) return;
+      
+      try {
+        const linkedInspirations = await getInspirationsForPiece(piece.id);
+        const linkedIds = new Set(linkedInspirations.map(insp => insp.id));
+        setOriginalInspirationIds(linkedIds);
+        setSelectedInspirationIds(linkedIds);
+      } catch (error) {
+        console.error('Failed to load linked inspirations:', error);
+      }
+    };
+
+    if (isEditing) {
+      loadLinkedInspirations();
+    }
+  }, [isEditing, isAuthenticated, piece?.id]);
 
   if (!piece) return <main className="p-4">Piece not found.</main>;
 
-  const onSave = () => {
+  const computeDiff = () => {
+    const toLink = Array.from(selectedInspirationIds).filter(id => !originalInspirationIds.has(id));
+    const toUnlink = Array.from(originalInspirationIds).filter(id => !selectedInspirationIds.has(id));
+    return { toLink, toUnlink };
+  };
+
+  const syncLinks = async () => {
+    if (!isAuthenticated) return;
+    const { toLink, toUnlink } = computeDiff();
+    await syncLinksAfterPieceSave(piece.id, toLink, toUnlink);
+  };
+
+  const onSave = async () => {
     const updated: Piece = {
       ...piece,
       title: title.trim() || piece.title,
@@ -54,18 +91,46 @@ const PieceEditForm = () => {
       slip: slip.trim() || undefined,
       underglaze: underglaze.trim() || undefined,
       notes: notes.trim() || undefined,
-      inspiration_links: selectedInspirations.length > 0 ? selectedInspirations : undefined,
     };
+    
+    // Save piece first
     upsertPiece(updated);
+    
+    // Sync links if authenticated and editing
+    if (isEditing && isAuthenticated) {
+      try {
+        await syncLinks();
+        toast({
+          title: "Piece updated",
+          description: "Links synchronized successfully",
+        });
+      } catch (error: any) {
+        const message = error?.message || 'Unknown error';
+        toast({
+          title: "Piece updated",
+          description: `But linking failed: ${message}`,
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Piece updated",
+      });
+    }
+    
     navigate(`/piece/${piece.id}`);
   };
 
-  const toggleInspiration = (inspirationId: string) => {
-    setSelectedInspirations(prev => 
-      prev.includes(inspirationId) 
-        ? prev.filter(id => id !== inspirationId)
-        : [...prev, inspirationId]
-    );
+  const toggleInspiration = (id: string) => {
+    setSelectedInspirationIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -232,54 +297,46 @@ const PieceEditForm = () => {
       </Card>
 
       {/* Section 5: Inspirations */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="section-header">Inspirations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {inspirations.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No inspirations available. Create some first!</p>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Select inspirations to link with this piece:</p>
-              <div className="grid grid-cols-3 gap-3">
-                {inspirations.map((inspiration) => (
-                  <div
-                    key={inspiration.id}
-                    className={`relative aspect-square rounded-md border-2 cursor-pointer transition-all ${
-                      selectedInspirations.includes(inspiration.id)
-                        ? "border-primary ring-2 ring-primary/20"
-                        : "border-muted-foreground/25 hover:border-muted-foreground/50"
-                    }`}
-                    onClick={() => toggleInspiration(inspiration.id)}
-                  >
-                    <img
-                      src={getThumbnailUrl(inspiration.photos, inspiration.image_url)}
-                      alt="Inspiration"
-                      className="w-full h-full object-cover rounded-md"
-                    />
-                    {selectedInspirations.includes(inspiration.id) && (
-                      <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                        <X className="h-3 w-3" />
-                      </div>
-                    )}
-                    {inspiration.note && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-2 rounded-b-md">
-                        {inspiration.note.length > 30 ? `${inspiration.note.slice(0, 30)}...` : inspiration.note}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              {selectedInspirations.length > 0 && (
-                <p className="text-sm text-muted-foreground">
-                  {selectedInspirations.length} inspiration{selectedInspirations.length !== 1 ? 's' : ''} selected
-                </p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <LinkedItemsPod 
+        mode="inspirations" 
+        itemId={piece.id}
+        isEditing={isEditing}
+        selectedIds={selectedInspirationIds}
+        onToggleSelection={toggleInspiration}
+      />
+
+      {/* Edit Inspirations Controls */}
+      {isAuthenticated && !isEditing && (
+        <Button 
+          variant="outline" 
+          onClick={() => setIsEditing(true)}
+          className="w-full"
+        >
+          Edit Linked Inspirations
+        </Button>
+      )}
+
+      {isAuthenticated && isEditing && (
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setIsEditing(false);
+              setSelectedInspirationIds(originalInspirationIds);
+            }}
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="hero" 
+            onClick={() => setIsEditing(false)}
+            className="flex-1"
+          >
+            Done
+          </Button>
+        </div>
+      )}
 
       {/* Save Button */}
       <Button 

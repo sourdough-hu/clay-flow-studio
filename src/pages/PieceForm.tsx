@@ -12,6 +12,7 @@ import { SEO } from "@/components/SEO";
 import MultiPhotoPicker from "@/components/MultiPhotoPicker";
 import { Camera, ImageIcon, X } from "lucide-react";
 import { getThumbnailUrl } from "@/lib/photos";
+import { useAuth } from "@/contexts/AuthContext";
 
 const forms: PotteryForm[] = ["Mug / Cup", "Bowl", "Vase", "Plate", "Pitcher", "Teapot", "Sculpture", "Others"];
 const stages: Stage[] = ["throwing", "trimming", "drying", "bisque_firing", "glazing", "glaze_firing", "finished"];
@@ -36,9 +37,12 @@ const PieceForm = () => {
   const [slip, setSlip] = useState("");
   const [underglaze, setUnderglaze] = useState("");
   const [notes, setNotes] = useState("");
-  const [selectedInspirations, setSelectedInspirations] = useState<string[]>([]);
   
-  const inspirations = getInspirations();
+  const { isAuthenticated } = useAuth();
+
+  const handleSignInClick = () => {
+    window.location.href = '/auth';
+  };
 
   const onSubmit = () => {
     if (!title.trim()) return;
@@ -59,7 +63,6 @@ const PieceForm = () => {
       slip: slip.trim() || undefined,
       underglaze: underglaze.trim() || undefined,
       notes: notes.trim() || undefined,
-      inspiration_links: selectedInspirations.length > 0 ? selectedInspirations : undefined,
       stage_history: [],
       ...suggestNextStep(stage),
     };
@@ -67,13 +70,6 @@ const PieceForm = () => {
     navigate(`/piece/${id}`);
   };
 
-  const toggleInspiration = (inspirationId: string) => {
-    setSelectedInspirations(prev => 
-      prev.includes(inspirationId) 
-        ? prev.filter(id => id !== inspirationId)
-        : [...prev, inspirationId]
-    );
-  };
 
   return (
     <main className="min-h-screen p-4 space-y-4">
@@ -237,49 +233,22 @@ const PieceForm = () => {
       {/* Section 5: Inspirations */}
       <Card>
         <CardHeader>
-          <CardTitle className="section-header">Inspirations</CardTitle>
+          <CardTitle className="text-base">Inspirations</CardTitle>
         </CardHeader>
-        <CardContent>
-          {inspirations.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No inspirations available. Create some first!</p>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Select inspirations to link with this piece:</p>
-              <div className="grid grid-cols-3 gap-3">
-                {inspirations.map((inspiration) => (
-                  <div
-                    key={inspiration.id}
-                    className={`relative aspect-square rounded-md border-2 cursor-pointer transition-all ${
-                      selectedInspirations.includes(inspiration.id)
-                        ? "border-primary ring-2 ring-primary/20"
-                        : "border-muted-foreground/25 hover:border-muted-foreground/50"
-                    }`}
-                    onClick={() => toggleInspiration(inspiration.id)}
-                  >
-                    <img
-                      src={getThumbnailUrl(inspiration.photos, inspiration.image_url)}
-                      alt="Inspiration"
-                      className="w-full h-full object-cover rounded-md"
-                    />
-                    {selectedInspirations.includes(inspiration.id) && (
-                      <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                        <X className="h-3 w-3" />
-                      </div>
-                    )}
-                    {inspiration.note && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-2 rounded-b-md">
-                        {inspiration.note.length > 30 ? `${inspiration.note.slice(0, 30)}...` : inspiration.note}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              {selectedInspirations.length > 0 && (
-                <p className="text-sm text-muted-foreground">
-                  {selectedInspirations.length} inspiration{selectedInspirations.length !== 1 ? 's' : ''} selected
-                </p>
-              )}
+        <CardContent className="space-y-3">
+          {!isAuthenticated ? (
+            <div className="text-center py-6 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Sign in to link inspirations with this piece.
+              </p>
+              <Button onClick={handleSignInClick} variant="hero">
+                Sign in to enable linking
+              </Button>
             </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              You can link inspirations after saving this piece.
+            </p>
           )}
         </CardContent>
       </Card>

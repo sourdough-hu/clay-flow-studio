@@ -25,6 +25,28 @@ export async function syncLinksAfterInspirationSave(
   }
 }
 
+// Sequential link synchronization function for pieces
+export async function syncLinksAfterPieceSave(
+  pieceId: string,
+  toLink: string[], 
+  toUnlink: string[]
+) {
+  // Ensure valid authentication before any link operations
+  await ensureAuthWithPrompt();
+  
+  console.table([...toLink].map(id => ({ pieceId, inspId: id, operation: 'link' })));
+  console.table([...toUnlink].map(id => ({ pieceId, inspId: id, operation: 'unlink' })));
+  
+  // Run sequentially for clearer error diagnosis
+  for (const inspId of toLink) {
+    await safeUpsertLink(pieceId, inspId);
+  }
+  
+  for (const inspId of toUnlink) {
+    await safeRemoveLink(pieceId, inspId);
+  }
+}
+
 // Symmetric linking functions for pieces and inspirations
 // Safe wrapper functions with detailed logging
 export async function safeUpsertLink(pieceId: string, inspId: string) {
