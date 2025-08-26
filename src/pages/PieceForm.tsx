@@ -78,7 +78,7 @@ const PieceForm = () => {
   return (
     <main className="min-h-screen p-4 space-y-4">
       <SEO title="Pottery Tracker — New Piece" description="Log a new pottery piece with stage and details." />
-      <h1 className="text-xl font-semibold">Log New Piece</h1>
+      <h1 className="text-xl font-semibold">Log a New Piece</h1>
       
       {/* Title and Photos Section */}
       <Card>
