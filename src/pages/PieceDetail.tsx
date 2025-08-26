@@ -17,8 +17,6 @@ const PieceDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const piece = useMemo(() => (id ? getPieceById(id) : undefined), [id]);
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
-
   // Debug: Log the photos data
   if (piece?.photos) {
     console.log('Photos array:', piece.photos);
@@ -26,7 +24,7 @@ const PieceDetail = () => {
       piece.photos.map((photo, i) => ({ 
         index: i, 
         url: photo,
-        isSelected: i === selectedPhotoIndex 
+        isCover: i === 0
       }))
     );
   }
@@ -63,7 +61,7 @@ const PieceDetail = () => {
       {/* Hero Image and Thumbnail Strip */}
       {piece.photos && piece.photos.length > 0 ? (
         <div className="relative">
-          {/* Hero Image - Show selected photo */}
+          {/* Hero Image - Always show cover (index 0) */}
           <div 
             className="relative w-full h-[45vh] overflow-hidden cursor-pointer"
             onClick={() => {
@@ -72,40 +70,45 @@ const PieceDetail = () => {
             }}
           >
             <img
-              src={getThumbnailUrl(piece.photos, piece.photos[selectedPhotoIndex])}
-              alt={`${piece.title} - Photo ${selectedPhotoIndex + 1}`}
+              src={piece.photos[0]}
+              alt={`${piece.title} - Cover photo`}
               className="w-full h-full object-cover"
             />
           </div>
 
-          {/* Thumbnail Strip - Show all photos except currently selected */}
-          {piece.photos.length > 1 && (
-            <div className="px-4 py-3 bg-background border-b">
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                {piece.photos.map((photo, index) => (
-                  index !== selectedPhotoIndex && (
-                    <button
-                      key={photo || index}
-                      onClick={() => setSelectedPhotoIndex(index)}
-                      className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-muted-foreground/25 hover:border-muted-foreground/50 transition-all"
-                      aria-label={`Photo ${index + 1} of ${piece.photos.length}`}
-                    >
-                      <img
-                        src={photo}
-                        alt={`Thumbnail ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  )
-                ))}
-              </div>
-              {piece.photos.length > 1 && (
-                <div className="text-center text-xs text-muted-foreground mt-2">
-                  Swipe thumbnails • {piece.photos.length} photos
-                </div>
-              )}
+          {/* Thumbnail Strip - Show all photos including cover */}
+          <div className="px-4 py-3 bg-background border-b">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {piece.photos.map((photo, index) => (
+                <button
+                  key={photo || index}
+                  onClick={() => {
+                    const gallery = document.querySelector('[data-photo-gallery]') as HTMLElement;
+                    // Set the PhotoGallery to start at this index
+                    const photoGalleryComponent = document.querySelector('.photo-gallery-component') as any;
+                    if (photoGalleryComponent) {
+                      photoGalleryComponent.openFullscreen?.(index);
+                    }
+                  }}
+                  className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                    index === 0 
+                      ? 'border-primary ring-1 ring-primary/20' 
+                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                  }`}
+                  aria-label={`Photo ${index + 1} of ${piece.photos.length}${index === 0 ? ' (Cover)' : ''}`}
+                >
+                  <img
+                    src={photo}
+                    alt={`Thumbnail ${index + 1}${index === 0 ? ' (Cover)' : ''}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
             </div>
-          )}
+            <div className="text-center text-xs text-muted-foreground mt-2">
+              Swipe thumbnails • {piece.photos.length} photos
+            </div>
+          </div>
         </div>
       ) : (
         <div className="w-full h-[20vh] bg-muted flex items-center justify-center">
@@ -352,7 +355,7 @@ const PieceDetail = () => {
         {/* Photo Gallery for full-screen viewing */}
         {piece.photos && (
           <div className="fixed bottom-4 right-4 opacity-0 pointer-events-none">
-            <PhotoGallery photos={piece.photos} initialIndex={selectedPhotoIndex} />
+            <PhotoGallery photos={piece.photos} initialIndex={0} />
             <button 
               data-photo-gallery-trigger
               className="hidden"
