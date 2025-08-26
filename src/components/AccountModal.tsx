@@ -641,7 +641,7 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Crown className="w-4 h-4" />
-              <h3 className="font-medium">Subscription</h3>
+              <h3 className="font-medium">Subscription - Coming soon</h3>
             </div>
             
             {profile.subscription.plan === 'pro' ? (
