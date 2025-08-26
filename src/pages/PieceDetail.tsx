@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,22 @@ const PieceDetail = () => {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
   
+  // Hint dismissal state
+  const [showHint, setShowHint] = useState(true);
+  
+  useEffect(() => {
+    const dismissed = localStorage.getItem('thumbnailHintDismissed');
+    if (dismissed === 'true') {
+      setShowHint(false);
+    }
+  }, []);
+  
   const openViewer = (index: number) => {
+    // Dismiss hint on first viewer open
+    if (showHint) {
+      setShowHint(false);
+      localStorage.setItem('thumbnailHintDismissed', 'true');
+    }
     setViewerIndex(index);
     setViewerOpen(true);
   };
@@ -84,7 +99,12 @@ const PieceDetail = () => {
 
           {/* Thumbnail Strip - Show all photos including cover */}
           <div className="px-4 py-3 bg-background border-b">
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+            {showHint && (
+              <div className="text-xs text-muted-foreground mb-2">
+                Tap a thumbnail to view
+              </div>
+            )}
+            <div className="flex gap-2 overflow-x-auto thumb-row">
               {piece.photos.map((photo, index) => (
                  <button
                    key={photo || index}
@@ -103,9 +123,6 @@ const PieceDetail = () => {
                   />
                 </button>
               ))}
-            </div>
-            <div className="text-center text-xs text-muted-foreground mt-2">
-              Swipe thumbnails • {piece.photos.length} photos
             </div>
           </div>
         </div>

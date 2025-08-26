@@ -198,3 +198,24 @@
   .bg-muted { color: hsl(var(--muted-foreground)); }
 }
 
+/* Thumbnail row scrollbar styling */
+.thumb-row {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.thumb-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.thumb-row::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 9999px;
+}
+
+.thumb-row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
