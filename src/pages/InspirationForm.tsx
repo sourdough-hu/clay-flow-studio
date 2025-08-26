@@ -10,6 +10,7 @@ import { syncLinksAfterInspirationSave } from "@/lib/supabase-links";
 import { toast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
 import MultiPhotoPicker from "@/components/MultiPhotoPicker";
+import { useAuth } from "@/contexts/AuthContext";
 
 function scoreMatch(inspTags: string[], piece: Piece): number {
   const pTags = new Set((piece.tags ?? []).map((t) => t.toLowerCase()));
@@ -21,6 +22,7 @@ function scoreMatch(inspTags: string[], piece: Piece): number {
 
 const InspirationForm = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [photos, setPhotos] = useState<string[]>([]);
   const [linkUrl, setLinkUrl] = useState("");
   const [note, setNote] = useState("");
@@ -36,6 +38,10 @@ const InspirationForm = () => {
       .slice(0, 3)
       .map((s) => s.p);
   }, [tags, pieces]);
+
+  const handleSignInClick = () => {
+    window.location.href = '/auth';
+  };
 
   const onSubmit = async () => {
     const id = (crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2));
@@ -53,8 +59,8 @@ const InspirationForm = () => {
     // Save inspiration first
     addInspiration(item);
     
-    // Create symmetric link using Supabase if piece is selected
-    if (linkTo) {
+    // Create symmetric link using Supabase if piece is selected and user is authenticated
+    if (linkTo && isAuthenticated) {
       try {
         await syncLinksAfterInspirationSave(id, [linkTo], []);
         toast({
@@ -95,19 +101,30 @@ const InspirationForm = () => {
           {suggestions.length > 0 && (
             <div>
               <div className="text-sm font-medium mb-2">Suggested pieces</div>
-              <div className="space-y-2">
-                {suggestions.map((p) => (
-                  <label key={p.id} className="flex items-center gap-2 text-sm">
-                    <input type="radio" name="linkTo" value={p.id} checked={linkTo === p.id} onChange={(e) => setLinkTo(e.target.value)} />
-                    <span className="text-foreground">{p.title}</span>
-                    <span className="text-muted-foreground">— {p.current_stage.replace("_"," ")}</span>
+              {!isAuthenticated ? (
+                <div className="text-center py-6 space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Link pieces with inspirations and sync across devices.
+                  </p>
+                  <Button onClick={handleSignInClick} variant="hero">
+                    Sign in to enable linking
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {suggestions.map((p) => (
+                    <label key={p.id} className="flex items-center gap-2 text-sm">
+                      <input type="radio" name="linkTo" value={p.id} checked={linkTo === p.id} onChange={(e) => setLinkTo(e.target.value)} />
+                      <span className="text-foreground">{p.title}</span>
+                      <span className="text-muted-foreground">— {p.current_stage.replace("_"," ")}</span>
+                    </label>
+                  ))}
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="radio" name="linkTo" value="" checked={linkTo === ""} onChange={(e) => setLinkTo(e.target.value)} />
+                    <span>Do not link</span>
                   </label>
-                ))}
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="radio" name="linkTo" value="" checked={linkTo === ""} onChange={(e) => setLinkTo(e.target.value)} />
-                  <span>Do not link</span>
-                </label>
-              </div>
+                </div>
+              )}
             </div>
           )}
 
