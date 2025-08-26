@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Inspiration, Piece } from "@/types";
 import { getInspirations, getPieces, updateInspiration } from "@/lib/storage";
-import { getPiecesForInspiration, setInspirationLinks } from "@/lib/supabase-links";
+import { getPiecesForInspiration, linkPieceAndInspiration, unlinkPieceAndInspiration } from "@/lib/supabase-links";
 
 const InspirationDetail = () => {
   const { id } = useParams();
@@ -37,32 +37,70 @@ const InspirationDetail = () => {
       ? inspiration.photos
       : (inspiration?.image_url ? [inspiration.image_url] : [])
   );
-  const [selectedPieceIds, setSelectedPieceIds] = useState<string[]>([]);
+  const [selectedPieceIds, setSelectedPieceIds] = useState<Set<string>>(new Set());
+  const [originalPieceIds, setOriginalPieceIds] = useState<Set<string>>(new Set());
+  const [isEditing, setIsEditing] = useState(false);
   
   // Update selectedPieceIds when linkedPieces changes
   useEffect(() => {
-    setSelectedPieceIds(linkedPieces.map((p) => p.id));
+    const pieceIds = new Set(linkedPieces.map((p) => p.id));
+    setSelectedPieceIds(pieceIds);
+    setOriginalPieceIds(new Set(pieceIds));
   }, [linkedPieces]);
-  const [isEditing, setIsEditing] = useState(false);
 
   if (!inspiration) return <main className="p-4">Inspiration not found.</main>;
 
 
   const togglePiece = (pid: string) => {
-    setSelectedPieceIds((prev) => prev.includes(pid) ? prev.filter((x) => x !== pid) : [...prev, pid]);
+    setSelectedPieceIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(pid)) {
+        newSet.delete(pid);
+      } else {
+        newSet.add(pid);
+      }
+      return newSet;
+    });
+  };
+
+  const computeDiff = () => {
+    const toLink = [...selectedPieceIds].filter(id => !originalPieceIds.has(id));
+    const toUnlink = [...originalPieceIds].filter(id => !selectedPieceIds.has(id));
+    return { toLink, toUnlink };
   };
 
   const onSave = async () => {
-    const updated: Inspiration = {
-      ...inspiration,
-      note: note || undefined,
-      tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
-      photos: photos,
-      image_url: photos[0] || inspiration.image_url,
-    };
-    updateInspiration(updated);
-    await setInspirationLinks(inspiration.id, selectedPieceIds);
-    navigate(0);
+    try {
+      // 1) Save the inspiration itself (only scalar fields + photos)
+      const updated: Inspiration = {
+        ...inspiration,
+        note: note || undefined,
+        tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
+        photos: photos,
+        image_url: photos[0] || inspiration.image_url,
+      };
+      updateInspiration(updated);
+
+      // 2) Apply link diffs AFTER inspiration is saved
+      const { toLink, toUnlink } = computeDiff();
+
+      // Apply unlinks first, then links
+      for (const pieceId of toUnlink) {
+        await unlinkPieceAndInspiration(pieceId, inspiration.id);
+      }
+      for (const pieceId of toLink) {
+        await linkPieceAndInspiration(pieceId, inspiration.id);
+      }
+
+      // 3) Update original state for future saves
+      setOriginalPieceIds(new Set(selectedPieceIds));
+
+      navigate(0);
+    } catch (error) {
+      console.error('Error saving inspiration:', error);
+      // If linking fails, inspiration is still saved
+      alert('Saved, but couldn\'t update links. Retry from Edit.');
+    }
   };
 
   return (
@@ -123,7 +161,7 @@ const InspirationDetail = () => {
             <div className="grid grid-cols-1 gap-2">
               {allPieces.map((p: Piece) => (
                 <label key={p.id} className="flex items-center gap-3 text-sm">
-                  <input type="checkbox" checked={selectedPieceIds.includes(p.id)} onChange={() => togglePiece(p.id)} />
+                  <input type="checkbox" checked={selectedPieceIds.has(p.id)} onChange={() => togglePiece(p.id)} />
                   <div className="flex items-center gap-2">
                     {p.photos && p.photos[0] && (
                       <img src={p.photos[0]} alt={`${p.title} thumbnail`} className="w-10 h-10 rounded object-cover border" />

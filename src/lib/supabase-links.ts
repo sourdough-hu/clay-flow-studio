@@ -5,12 +5,17 @@ import { getPieces, getInspirations, getLinks } from "@/lib/storage";
 // Symmetric linking functions for pieces and inspirations
 export async function linkPieceAndInspiration(pieceId: string, inspirationId: string) {
   try {
+    const { data: user, error: userError } = await supabase.auth.getUser();
+    if (userError || !user?.user?.id) {
+      throw new Error('User not authenticated');
+    }
+
     const { error } = await supabase
       .from('piece_inspiration_links')
       .upsert({
         piece_id: pieceId,
         inspiration_id: inspirationId,
-        user_id: (await supabase.auth.getUser()).data.user?.id
+        user_id: user.user.id
       }, {
         onConflict: 'piece_id,inspiration_id'
       });
@@ -109,11 +114,15 @@ export async function setPieceLinks(pieceId: string, inspirationIds: string[]) {
 
     // Add new links
     if (toAdd.length > 0) {
-      const user = await supabase.auth.getUser();
+      const { data: user, error: userError } = await supabase.auth.getUser();
+      if (userError || !user?.user?.id) {
+        throw new Error('User not authenticated');
+      }
+
       const newLinks = toAdd.map(inspirationId => ({
         piece_id: pieceId,
         inspiration_id: inspirationId,
-        user_id: user.data.user?.id
+        user_id: user.user.id
       }));
 
       const { error: insertError } = await supabase
@@ -158,11 +167,15 @@ export async function setInspirationLinks(inspirationId: string, pieceIds: strin
 
     // Add new links
     if (toAdd.length > 0) {
-      const user = await supabase.auth.getUser();
+      const { data: user, error: userError } = await supabase.auth.getUser();
+      if (userError || !user?.user?.id) {
+        throw new Error('User not authenticated');
+      }
+
       const newLinks = toAdd.map(pieceId => ({
         piece_id: pieceId,
         inspiration_id: inspirationId,
-        user_id: user.data.user?.id
+        user_id: user.user.id
       }));
 
       const { error: insertError } = await supabase
@@ -188,8 +201,8 @@ export async function backfillExistingLinks() {
       return;
     }
 
-    const user = await supabase.auth.getUser();
-    if (!user.data.user?.id) {
+    const { data: user, error: userError } = await supabase.auth.getUser();
+    if (userError || !user?.user?.id) {
       console.log('User not authenticated, skipping backfill');
       return;
     }
@@ -198,7 +211,7 @@ export async function backfillExistingLinks() {
     const supabaseLinks = localLinks.map(link => ({
       piece_id: link.piece_id,
       inspiration_id: link.inspiration_id,
-      user_id: user.data.user.id,
+      user_id: user.user.id,
       created_at: link.created_at
     }));
 
