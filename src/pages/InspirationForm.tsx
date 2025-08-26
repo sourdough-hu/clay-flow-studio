@@ -26,7 +26,6 @@ const InspirationForm = () => {
     isAuthenticated
   } = useAuth();
   const [photos, setPhotos] = useState<string[]>([]);
-  const [linkUrl, setLinkUrl] = useState("");
   const [note, setNote] = useState("");
   const [tags, setTags] = useState("");
   const [linkTo, setLinkTo] = useState<string>("");
@@ -48,7 +47,7 @@ const InspirationForm = () => {
       image_url: photos[0] || undefined,
       // Keep for backward compatibility
       photos: photos.length > 0 ? photos : undefined,
-      link_url: linkUrl || undefined,
+      
       note: note || undefined,
       tags: tags ? tags.split(",").map(t => t.trim()).filter(Boolean) : undefined,
       linked_piece_id: linkTo || undefined,
@@ -90,7 +89,6 @@ const InspirationForm = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <MultiPhotoPicker photos={photos} onChange={setPhotos} maxPhotos={20} showButtons={false} />
-          <Input placeholder="Link URL" value={linkUrl} onChange={e => setLinkUrl(e.target.value)} />
           <Input placeholder="Tags (comma separated)" value={tags} onChange={e => setTags(e.target.value)} />
           <Textarea placeholder="Note" value={note} onChange={e => setNote(e.target.value)} />
         </CardContent>
