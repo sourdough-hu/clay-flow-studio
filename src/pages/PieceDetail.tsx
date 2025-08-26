@@ -49,11 +49,20 @@ const PieceDetail = () => {
   
   // Hint dismissal state
   const [showHint, setShowHint] = useState(true);
+  const [showInspHint, setShowInspHint] = useState(true);
+  
+  // Inspiration viewer state
+  const [inspViewerOpen, setInspViewerOpen] = useState(false);
+  const [inspViewerIndex, setInspViewerIndex] = useState(0);
   
   useEffect(() => {
     const dismissed = localStorage.getItem('thumbnailHintDismissed');
     if (dismissed === 'true') {
       setShowHint(false);
+    }
+    const inspDismissed = localStorage.getItem('inspirationHintDismissed');
+    if (inspDismissed === 'true') {
+      setShowInspHint(false);
     }
   }, []);
   
@@ -66,6 +75,35 @@ const PieceDetail = () => {
     setViewerIndex(index);
     setViewerOpen(true);
   };
+  
+  const openInspirationViewer = (index: number) => {
+    // Dismiss hint on first viewer open
+    if (showInspHint) {
+      setShowInspHint(false);
+      localStorage.setItem('inspirationHintDismissed', 'true');
+    }
+    setInspViewerIndex(index);
+    setInspViewerOpen(true);
+  };
+
+  // Get linked inspirations and flatten all photos
+  const linkedInspirations = getInspirationsForPiece(piece.id);
+  const inspPhotos = useMemo(() => {
+    return linkedInspirations.flatMap((insp, inspIndex) => {
+      // Handle both photos array and image_url fallback
+      const images = insp.photos && insp.photos.length > 0 
+        ? insp.photos 
+        : insp.image_url ? [insp.image_url] : [];
+      
+      return images.map((url, photoIndex) => ({
+        inspId: insp.id,
+        inspIndex,
+        photoIndex,
+        id: `${insp.id}-${photoIndex}`,
+        url: url
+      }));
+    });
+  }, [linkedInspirations]);
 
   // Check if any About fields have content
   const hasAboutContent = piece.form || piece.current_stage || piece.clay_type || piece.clay_body_details;
@@ -295,28 +333,31 @@ const PieceDetail = () => {
         )}
 
         {/* Inspirations Section */}
-        {getInspirationsForPiece(piece.id).length > 0 && (
+        {inspPhotos.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="section-header">Inspirations</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-3 gap-3">
-                {getInspirationsForPiece(piece.id).map((inspiration) => (
-                  <Link key={inspiration.id} to={`/inspiration/${inspiration.id}`} className="block">
-                    <div className="relative aspect-square rounded-md overflow-hidden border hover:border-primary/50 transition-colors">
-                      <img
-                        src={getThumbnailUrl(inspiration.photos, inspiration.image_url)}
-                        alt="Inspiration"
-                        className="w-full h-full object-cover"
-                      />
-                      {inspiration.note && (
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-2">
-                          {inspiration.note.length > 20 ? `${inspiration.note.slice(0, 20)}...` : inspiration.note}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
+              {showInspHint && (
+                <div className="text-xs text-muted-foreground mb-2">
+                  Tap an inspiration to view
+                </div>
+              )}
+              <div className="flex gap-2 overflow-x-auto thumb-row">
+                {inspPhotos.map((photo, index) => (
+                  <button
+                    key={photo.id}
+                    onClick={() => openInspirationViewer(index)}
+                    className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-muted-foreground/25 hover:border-muted-foreground/50 transition-all"
+                    aria-label={`Open inspiration photo ${index + 1} of ${inspPhotos.length}`}
+                  >
+                    <img
+                      src={photo.url}
+                      alt={`Inspiration ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
                 ))}
               </div>
             </CardContent>
@@ -375,6 +416,16 @@ const PieceDetail = () => {
             initialIndex={viewerIndex}
             autoOpen={true}
             onClose={() => setViewerOpen(false)}
+          />
+        )}
+        
+        {/* Inspiration Photo Gallery Viewer */}
+        {inspPhotos.length > 0 && inspViewerOpen && (
+          <PhotoGallery 
+            photos={inspPhotos.map(p => p.url)} 
+            initialIndex={inspViewerIndex}
+            autoOpen={true}
+            onClose={() => setInspViewerOpen(false)}
           />
         )}
       </div>
