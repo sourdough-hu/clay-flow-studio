@@ -98,39 +98,53 @@ const InspirationForm = () => {
           <Input placeholder="Tags (comma separated)" value={tags} onChange={(e) => setTags(e.target.value)} />
           <Textarea placeholder="Note" value={note} onChange={(e) => setNote(e.target.value)} />
 
-          {suggestions.length > 0 && (
-            <div>
-              <div className="text-sm font-medium mb-2">Suggested pieces</div>
-              {!isAuthenticated ? (
-                <div className="text-center py-6 space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Link pieces with inspirations and sync across devices.
-                  </p>
-                  <Button onClick={handleSignInClick} variant="hero">
-                    Sign in to enable linking
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {suggestions.map((p) => (
-                    <label key={p.id} className="flex items-center gap-2 text-sm">
-                      <input type="radio" name="linkTo" value={p.id} checked={linkTo === p.id} onChange={(e) => setLinkTo(e.target.value)} />
-                      <span className="text-foreground">{p.title}</span>
-                      <span className="text-muted-foreground">— {p.current_stage.replace("_"," ")}</span>
-                    </label>
-                  ))}
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="radio" name="linkTo" value="" checked={linkTo === ""} onChange={(e) => setLinkTo(e.target.value)} />
-                    <span>Do not link</span>
-                  </label>
-                </div>
-              )}
-            </div>
-          )}
-
-          <Button variant="hero" onClick={onSubmit}>Save Inspiration</Button>
         </CardContent>
       </Card>
+
+      {/* Section: Link with Pieces */}
+      {suggestions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Link with pieces</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {!isAuthenticated ? (
+              <div className="text-center py-6 space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Sign in to link inspirations with your pieces.
+                </p>
+                <Button onClick={handleSignInClick} variant="hero">
+                  Sign in to enable linking
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="text-sm font-medium mb-2">Suggested pieces</div>
+                {suggestions.map((p) => (
+                  <label key={p.id} className="flex items-center gap-2 text-sm">
+                    <input type="radio" name="linkTo" value={p.id} checked={linkTo === p.id} onChange={(e) => setLinkTo(e.target.value)} />
+                    <span className="text-foreground">{p.title}</span>
+                    <span className="text-muted-foreground">— {p.current_stage.replace("_"," ")}</span>
+                  </label>
+                ))}
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="radio" name="linkTo" value="" checked={linkTo === ""} onChange={(e) => setLinkTo(e.target.value)} />
+                  <span>Do not link</span>
+                </label>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Save Button */}
+      <Button 
+        variant="hero" 
+        onClick={onSubmit}
+        className="w-full"
+      >
+        Save Inspiration
+      </Button>
     </main>
   );
 };
