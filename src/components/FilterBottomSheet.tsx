@@ -14,7 +14,7 @@ import {
 import { ClayType, PotteryForm, Stage } from "@/types";
 
 export interface FilterValue {
-  type: "stage" | "size" | "clayType";
+  type: "stage" | "form" | "clayType";
   value: string;
   label: string;
 }
@@ -33,9 +33,9 @@ const formatStage = (stage: string) => stage.replace("_"," ").charAt(0).toUpperC
 
 export function FilterBottomSheet({ activeFilters, onFiltersChange, hideStage = false }: FilterBottomSheetProps) {
   const [open, setOpen] = useState(false);
-  const [selectedFilterType, setSelectedFilterType] = useState<"stage" | "size" | "clayType" | null>(null);
+  const [selectedFilterType, setSelectedFilterType] = useState<"stage" | "form" | "clayType" | null>(null);
 
-  const addFilter = (type: "stage" | "size" | "clayType", value: string, label: string) => {
+  const addFilter = (type: "stage" | "form" | "clayType", value: string, label: string) => {
     // Check if filter already exists
     const exists = activeFilters.some(f => f.type === type && f.value === value);
     if (exists) return;
@@ -59,9 +59,9 @@ export function FilterBottomSheet({ activeFilters, onFiltersChange, hideStage = 
       {/* Active filter chips */}
       {activeFilters.length > 0 && (
         <div className="flex flex-wrap gap-2 items-center">
-          {activeFilters.map((filter, idx) => (
-            <Badge key={`${filter.type}-${filter.value}`} variant="secondary" className="flex items-center gap-1">
-              {filter.type === "stage" && "Stage: "}{filter.type === "size" && "Size: "}{filter.type === "clayType" && "Clay: "}{filter.label}
+            {activeFilters.map((filter, idx) => (
+              <Badge key={`${filter.type}-${filter.value}`} variant="secondary" className="flex items-center gap-1">
+                {filter.type === "stage" && "Stage: "}{filter.type === "form" && "Form: "}{filter.type === "clayType" && "Clay Body: "}{filter.label}
               <X 
                 className="h-3 w-3 cursor-pointer" 
                 onClick={() => removeFilter(filter)}
@@ -106,17 +106,17 @@ export function FilterBottomSheet({ activeFilters, onFiltersChange, hideStage = 
                   )}
                   <Button 
                     variant="outline" 
-                    onClick={() => setSelectedFilterType("size")}
+                    onClick={() => setSelectedFilterType("form")}
                     className="justify-start"
                   >
-                    Size
+                    Form
                   </Button>
                   <Button 
                     variant="outline" 
                     onClick={() => setSelectedFilterType("clayType")}
                     className="justify-start"
                   >
-                    Clay Type
+                    Clay Body
                   </Button>
                 </div>
               </>
@@ -124,7 +124,7 @@ export function FilterBottomSheet({ activeFilters, onFiltersChange, hideStage = 
               <>
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium">
-                    Select {selectedFilterType === "clayType" ? "Clay Type" : selectedFilterType}
+                    Select {selectedFilterType === "clayType" ? "Clay Body" : selectedFilterType === "form" ? "Form" : selectedFilterType}
                   </h3>
                   <Button variant="ghost" size="sm" onClick={() => setSelectedFilterType(null)}>
                     Back
@@ -141,11 +141,11 @@ export function FilterBottomSheet({ activeFilters, onFiltersChange, hideStage = 
                       {formatStage(option)}
                     </Button>
                   ))}
-                  {selectedFilterType === "size" && formOptions.map((option) => (
+                  {selectedFilterType === "form" && formOptions.map((option) => (
                     <Button
                       key={option}
                       variant="outline"
-                      onClick={() => addFilter("size", option, option)}
+                      onClick={() => addFilter("form", option, option)}
                       className="justify-start"
                     >
                       {option}

@@ -90,7 +90,7 @@ const Tasks = () => {
           switch (filter.type) {
             case "stage":
               return t.piece.current_stage === filter.value;
-            case "size":
+            case "form":
               return t.piece.form === filter.value;
             case "clayType":
               return t.piece.clay_type === filter.value;
@@ -133,7 +133,7 @@ const Tasks = () => {
           switch (filter.type) {
             case "stage":
               return t.piece.current_stage === filter.value;
-            case "size":
+            case "form":
               return t.piece.form === filter.value;
             case "clayType":
               return t.piece.clay_type === filter.value;

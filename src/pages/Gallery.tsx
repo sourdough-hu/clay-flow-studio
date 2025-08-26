@@ -20,9 +20,19 @@ const Gallery = () => {
 
   const filtered = useMemo(() => {
     return finished.filter((p) => {
-      // Search filter
+      // Search filter - include decoration fields
+      const searchableText = [
+        p.title,
+        p.notes ?? "",
+        (p.tags ?? []).join(","),
+        p.glaze ?? "",
+        p.carving ?? "",
+        p.slip ?? "",
+        p.underglaze ?? ""
+      ].join(" ");
+      
       const matchQ = q
-        ? (p.title + " " + (p.notes ?? "") + " " + (p.tags ?? []).join(",")).toLowerCase().includes(q.toLowerCase())
+        ? searchableText.toLowerCase().includes(q.toLowerCase())
         : true;
       
       // Active filters
@@ -30,7 +40,7 @@ const Gallery = () => {
         switch (filter.type) {
           case "stage":
             return p.current_stage === filter.value;
-          case "size":
+          case "form":
             return p.form === filter.value;
           case "clayType":
             return p.clay_type === filter.value;
