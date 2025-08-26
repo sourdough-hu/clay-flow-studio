@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PhotoService } from "@/services/PhotoService";
-import { Camera, ImageIcon, X, Crown } from "lucide-react";
+import { Camera, ImageIcon, X, Crown, Images } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DragDropPhotos from "./DragDropPhotos";
 
@@ -41,45 +41,80 @@ const MultiPhotoPicker: React.FC<MultiPhotoPickerProps> = ({
       return;
     }
 
-    // Create action sheet for Camera/Gallery options
-    const actionSheet = document.createElement('div');
-    actionSheet.className = 'fixed inset-0 z-50 bg-black/50 flex items-end';
-    actionSheet.innerHTML = `
-      <div class="bg-background rounded-t-lg w-full p-4 space-y-3">
-        <div class="text-center text-sm font-medium">Add Photo</div>
-        <button id="camera-option" class="w-full p-4 text-left bg-muted rounded-lg hover:bg-muted/80">
-          📷 Camera
-        </button>
-        <button id="gallery-option" class="w-full p-4 text-left bg-muted rounded-lg hover:bg-muted/80">
-          🖼️ My Photos
-        </button>
-        <button id="cancel-option" class="w-full p-4 text-left bg-secondary rounded-lg hover:bg-secondary/80">
-          Cancel
-        </button>
-      </div>
+    // Create React-based action sheet
+    const actionSheetContainer = document.createElement('div');
+    actionSheetContainer.className = 'fixed inset-0 z-50 bg-black/50 flex items-end';
+    
+    const actionSheetContent = document.createElement('div');
+    actionSheetContent.className = 'bg-background rounded-t-lg w-full p-4 space-y-3';
+    
+    // Header
+    const header = document.createElement('div');
+    header.className = 'text-center text-sm font-medium text-foreground';
+    header.textContent = 'Add Photo';
+    actionSheetContent.appendChild(header);
+    
+    // Camera option
+    const cameraOption = document.createElement('button');
+    cameraOption.className = 'w-full p-4 text-left bg-muted rounded-lg hover:bg-muted/80 flex items-center gap-3 text-foreground';
+    cameraOption.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+        <circle cx="12" cy="13" r="3"/>
+      </svg>
+      <span>Camera</span>
     `;
     
-    document.body.appendChild(actionSheet);
+    // My Photos option
+    const galleryOption = document.createElement('button');
+    galleryOption.className = 'w-full p-4 text-left bg-muted rounded-lg hover:bg-muted/80 flex items-center gap-3 text-foreground';
+    galleryOption.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 22H4a2 2 0 0 1-2-2V6"/>
+        <path d="m22 13-1.296-1.296a2.41 2.41 0 0 0-3.408 0L11 18"/>
+        <circle cx="12" cy="8" r="2"/>
+        <rect width="16" height="16" x="6" y="2" rx="2"/>
+      </svg>
+      <span>My Photos</span>
+    `;
+    
+    // Cancel option
+    const cancelOption = document.createElement('button');
+    cancelOption.className = 'w-full p-4 text-left bg-secondary rounded-lg hover:bg-secondary/80 flex items-center gap-3 text-foreground';
+    cancelOption.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m18 6-12 12"/>
+        <path d="m6 6 12 12"/>
+      </svg>
+      <span>Cancel</span>
+    `;
+    
+    actionSheetContent.appendChild(cameraOption);
+    actionSheetContent.appendChild(galleryOption);
+    actionSheetContent.appendChild(cancelOption);
+    actionSheetContainer.appendChild(actionSheetContent);
+    document.body.appendChild(actionSheetContainer);
     
     const removeSheet = () => {
-      document.body.removeChild(actionSheet);
+      document.body.removeChild(actionSheetContainer);
     };
     
-    actionSheet.addEventListener('click', (e) => {
-      if (e.target === actionSheet) removeSheet();
+    // Event listeners
+    actionSheetContainer.addEventListener('click', (e) => {
+      if (e.target === actionSheetContainer) removeSheet();
     });
     
-    document.getElementById('camera-option')?.addEventListener('click', async () => {
+    cameraOption.addEventListener('click', async () => {
       removeSheet();
       await addPhoto('camera');
     });
     
-    document.getElementById('gallery-option')?.addEventListener('click', async () => {
+    galleryOption.addEventListener('click', async () => {
       removeSheet();
       await addPhoto('gallery');
     });
     
-    document.getElementById('cancel-option')?.addEventListener('click', removeSheet);
+    cancelOption.addEventListener('click', removeSheet);
   };
 
   const addPhoto = async (source: 'camera' | 'gallery') => {
