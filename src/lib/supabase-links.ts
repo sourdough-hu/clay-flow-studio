@@ -9,7 +9,9 @@ export async function safeUpsertLink(pieceId: string, inspId: string) {
     if (!pieceId || typeof pieceId !== 'string') throw new Error('invalid pieceId');
     if (!inspId || typeof inspId !== 'string') throw new Error('invalid inspirationId');
     
+    console.log('[Link Upsert] Attempting:', { pieceId, inspId });
     const res = await linkPieceAndInspiration(pieceId, inspId);
+    console.log('[Link Upsert] Success:', { pieceId, inspId });
     return res;
   } catch (e: any) {
     console.error('[Link Upsert FAILED]', {
@@ -21,7 +23,9 @@ export async function safeUpsertLink(pieceId: string, inspId: string) {
 
 export async function safeRemoveLink(pieceId: string, inspId: string) {
   try {
+    console.log('[Link Remove] Attempting:', { pieceId, inspId });
     const res = await unlinkPieceAndInspiration(pieceId, inspId);
+    console.log('[Link Remove] Success:', { pieceId, inspId });
     return res;
   } catch (e: any) {
     console.error('[Link Remove FAILED]', {
@@ -44,10 +48,10 @@ export async function linkPieceAndInspiration(pieceId: string, inspirationId: st
 
     const { error } = await supabase
       .from('piece_inspiration_links')
-      .upsert({
-        piece_id: pid,
-        inspiration_id: iid,
-        user_id: user.user.id
+      .upsert({ 
+        piece_id: pid, 
+        inspiration_id: iid, 
+        user_id: user.user.id 
       }, {
         onConflict: 'piece_id,inspiration_id',
         ignoreDuplicates: true
@@ -69,8 +73,7 @@ export async function unlinkPieceAndInspiration(pieceId: string, inspirationId: 
     const { error } = await supabase
       .from('piece_inspiration_links')
       .delete()
-      .eq('piece_id', pid)
-      .eq('inspiration_id', iid);
+      .match({ piece_id: pid, inspiration_id: iid });
 
     if (error) throw error;
   } catch (error) {
