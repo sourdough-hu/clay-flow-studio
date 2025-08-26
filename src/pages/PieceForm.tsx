@@ -91,7 +91,7 @@ const PieceForm = () => {
           <MultiPhotoPicker 
             photos={photos} 
             onChange={setPhotos}
-            maxPhotos={20}
+            maxPhotos={10}
             showButtons={false}
           />
         </CardContent>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PhotoService } from "@/services/PhotoService";
-import { Camera, ImageIcon } from "lucide-react";
+import { Camera, ImageIcon, X, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DragDropPhotos from "./DragDropPhotos";
 
@@ -140,8 +140,79 @@ const MultiPhotoPicker: React.FC<MultiPhotoPickerProps> = ({
         </div>
       )}
 
-      {/* Photo Grid */}
-      {photos.length > 0 && (
+      {/* Horizontal Photo Strip */}
+      {!showButtons && (
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {/* Photo Thumbnails */}
+          {photos.map((photo, index) => (
+            <div
+              key={`${photo}-${index}`}
+              className="relative flex-shrink-0 w-20 h-20 rounded-md border bg-muted group"
+            >
+              <img 
+                src={photo} 
+                alt={`Photo ${index + 1}`}
+                className="w-full h-full object-cover rounded-md cursor-pointer"
+                onClick={() => {
+                  // Open full screen viewer - for now just a simple modal
+                  const modal = document.createElement('div');
+                  modal.className = 'fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4';
+                  modal.innerHTML = `
+                    <div class="relative max-w-full max-h-full">
+                      <img src="${photo}" alt="Full size" class="max-w-full max-h-full object-contain rounded-lg" />
+                      <button id="close-modal" class="absolute top-2 right-2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70">
+                        ✕
+                      </button>
+                    </div>
+                  `;
+                  document.body.appendChild(modal);
+                  
+                  const closeModal = () => document.body.removeChild(modal);
+                  modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal();
+                  });
+                  document.getElementById('close-modal')?.addEventListener('click', closeModal);
+                }}
+              />
+              
+              {/* Thumbnail indicator - crown for first photo */}
+              {index === 0 && (
+                <div className="absolute -top-1 -left-1 bg-primary text-primary-foreground rounded-full p-1 shadow-sm">
+                  <Crown className="h-3 w-3" />
+                </div>
+              )}
+
+              {/* Delete button */}
+              <button
+                type="button"
+                className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => {
+                  const newPhotos = photos.filter((_, i) => i !== index);
+                  onChange(newPhotos);
+                }}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+          
+          {/* Add Photo Button - always visible at end until max reached */}
+          {photos.length < maxPhotos && (
+            <div
+              className="flex-shrink-0 w-20 h-20 border-2 border-dashed border-muted-foreground/25 rounded-md flex items-center justify-center cursor-pointer hover:border-muted-foreground/50 transition-colors"
+              onClick={showPhotoOptions}
+            >
+              <div className="text-center">
+                <ImageIcon className="h-6 w-6 mx-auto mb-1 opacity-50" />
+                <span className="text-xs text-muted-foreground">Add</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Photo Grid (for showButtons mode) */}
+      {showButtons && photos.length > 0 && (
         <div className="space-y-2">
           <div className="text-sm text-muted-foreground">
             {photos.length} / {maxPhotos} photos • First image is the thumbnail
@@ -150,17 +221,12 @@ const MultiPhotoPicker: React.FC<MultiPhotoPickerProps> = ({
         </div>
       )}
 
-      {photos.length === 0 && (
-        <div 
-          className="border-2 border-dashed border-muted-foreground/25 rounded-md p-8 text-center text-muted-foreground cursor-pointer hover:border-muted-foreground/50 transition-colors"
-          onClick={showButtons ? undefined : showPhotoOptions}
-        >
+      {/* Empty state for showButtons mode */}
+      {showButtons && photos.length === 0 && (
+        <div className="border-2 border-dashed border-muted-foreground/25 rounded-md p-8 text-center text-muted-foreground">
           <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">
-            {showButtons ? "No photos added yet" : "Add photo"}
-          </p>
-          {showButtons && <p className="text-xs">Use the buttons above to add photos</p>}
-          {!showButtons && <p className="text-xs">Tap to choose Camera or My Photos</p>}
+          <p className="text-sm">No photos added yet</p>
+          <p className="text-xs">Use the buttons above to add photos</p>
         </div>
       )}
     </div>
