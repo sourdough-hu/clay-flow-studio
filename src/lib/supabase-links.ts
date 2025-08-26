@@ -3,8 +3,40 @@ import { Piece, Inspiration } from "@/types";
 import { getPieces, getInspirations, getLinks } from "@/lib/storage";
 
 // Symmetric linking functions for pieces and inspirations
+// Safe wrapper functions with detailed logging
+export async function safeUpsertLink(pieceId: string, inspId: string) {
+  try {
+    if (!pieceId || typeof pieceId !== 'string') throw new Error('invalid pieceId');
+    if (!inspId || typeof inspId !== 'string') throw new Error('invalid inspirationId');
+    
+    const res = await linkPieceAndInspiration(pieceId, inspId);
+    return res;
+  } catch (e: any) {
+    console.error('[Link Upsert FAILED]', {
+      pieceId, inspId, name: e?.name, code: e?.code, message: e?.message, details: e
+    });
+    throw e;
+  }
+}
+
+export async function safeRemoveLink(pieceId: string, inspId: string) {
+  try {
+    const res = await unlinkPieceAndInspiration(pieceId, inspId);
+    return res;
+  } catch (e: any) {
+    console.error('[Link Remove FAILED]', {
+      pieceId, inspId, name: e?.name, code: e?.code, message: e?.message, details: e
+    });
+    throw e;
+  }
+}
+
 export async function linkPieceAndInspiration(pieceId: string, inspirationId: string) {
   try {
+    // Coerce to string to avoid type mismatches
+    const pid = String(pieceId);
+    const iid = String(inspirationId);
+    
     const { data: user, error: userError } = await supabase.auth.getUser();
     if (userError || !user?.user?.id) {
       throw new Error('User not authenticated');
@@ -13,11 +45,12 @@ export async function linkPieceAndInspiration(pieceId: string, inspirationId: st
     const { error } = await supabase
       .from('piece_inspiration_links')
       .upsert({
-        piece_id: pieceId,
-        inspiration_id: inspirationId,
+        piece_id: pid,
+        inspiration_id: iid,
         user_id: user.user.id
       }, {
-        onConflict: 'piece_id,inspiration_id'
+        onConflict: 'piece_id,inspiration_id',
+        ignoreDuplicates: true
       });
 
     if (error) throw error;
@@ -29,11 +62,15 @@ export async function linkPieceAndInspiration(pieceId: string, inspirationId: st
 
 export async function unlinkPieceAndInspiration(pieceId: string, inspirationId: string) {
   try {
+    // Coerce to string to avoid type mismatches
+    const pid = String(pieceId);
+    const iid = String(inspirationId);
+    
     const { error } = await supabase
       .from('piece_inspiration_links')
       .delete()
-      .eq('piece_id', pieceId)
-      .eq('inspiration_id', inspirationId);
+      .eq('piece_id', pid)
+      .eq('inspiration_id', iid);
 
     if (error) throw error;
   } catch (error) {

@@ -9,11 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Inspiration, Piece } from "@/types";
 import { getInspirations, getPieces, updateInspiration } from "@/lib/storage";
-import { getPiecesForInspiration, linkPieceAndInspiration, unlinkPieceAndInspiration } from "@/lib/supabase-links";
+import { getPiecesForInspiration, safeUpsertLink, safeRemoveLink } from "@/lib/supabase-links";
+import { useToast } from "@/hooks/use-toast";
 
 const InspirationDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const inspiration = useMemo(() => getInspirations().find((i) => i.id === id), [id]);
   const allPieces = getPieces();
@@ -69,6 +71,22 @@ const InspirationDetail = () => {
     return { toLink, toUnlink };
   };
 
+  const syncLinks = async () => {
+    const { toLink, toUnlink } = computeDiff();
+    
+    // Log what we're about to sync
+    console.table([...selectedPieceIds].map(id => ({ pieceId: id, inspId: inspiration.id })));
+    console.log('Link sync:', { toLink, toUnlink });
+
+    // Apply unlinks first, then links (sequential for clear error diagnosis)
+    for (const pieceId of toUnlink) {
+      await safeRemoveLink(pieceId, inspiration.id);
+    }
+    for (const pieceId of toLink) {
+      await safeUpsertLink(pieceId, inspiration.id);
+    }
+  };
+
   const onSave = async () => {
     try {
       // 1) Save the inspiration itself (only scalar fields + photos)
@@ -82,24 +100,23 @@ const InspirationDetail = () => {
       updateInspiration(updated);
 
       // 2) Apply link diffs AFTER inspiration is saved
-      const { toLink, toUnlink } = computeDiff();
-
-      // Apply unlinks first, then links
-      for (const pieceId of toUnlink) {
-        await unlinkPieceAndInspiration(pieceId, inspiration.id);
-      }
-      for (const pieceId of toLink) {
-        await linkPieceAndInspiration(pieceId, inspiration.id);
-      }
+      await syncLinks();
 
       // 3) Update original state for future saves
       setOriginalPieceIds(new Set(selectedPieceIds));
 
+      toast({
+        title: "Success",
+        description: "Inspiration saved successfully"
+      });
       navigate(0);
-    } catch (error) {
-      console.error('Error saving inspiration:', error);
-      // If linking fails, inspiration is still saved
-      alert('Saved, but couldn\'t update links. Retry from Edit.');
+    } catch (error: any) {
+      console.error('Error in onSave:', error);
+      toast({
+        title: "Inspiration saved",
+        description: `But linking failed: ${error?.message ?? 'Unknown error'}`,
+        variant: "destructive"
+      });
     }
   };
 
