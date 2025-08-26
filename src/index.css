@@ -125,7 +125,31 @@
   h1 { @apply text-3xl; font-family: var(--font-serif); font-weight: 600; }
   h2 { @apply text-2xl; font-family: var(--font-serif); font-weight: 600; }
   h3 { @apply text-xl; font-family: var(--font-serif); font-weight: 600; }
-  input::placeholder, textarea::placeholder { color: hsl(var(--muted-foreground)); }
+  
+  /* Uniform typography for form elements */
+  input, textarea, select, [role="combobox"] {
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.45 !important;
+  }
+  
+  input::placeholder, textarea::placeholder { 
+    color: hsl(var(--muted-foreground)); 
+    font-size: 15px !important;
+    font-weight: 400 !important;
+  }
+
+  /* Form labels consistent sizing */
+  .field-label {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+  }
+
+  /* Section headers */
+  .section-header {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+  }
 
   /* iOS Safe Area Support */
   html, body {

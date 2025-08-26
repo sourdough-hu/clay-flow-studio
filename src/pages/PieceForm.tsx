@@ -100,12 +100,12 @@ const PieceForm = () => {
       {/* Section 2: About */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">About</CardTitle>
+          <CardTitle className="section-header">About</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           {/* Form Row */}
           <div className="flex items-start gap-4">
-            <div className="w-20 text-[15px] font-medium text-foreground pt-2">Form</div>
+            <div className="w-20 field-label pt-2">Form</div>
             <div className="flex-1 space-y-2">
               <Select value={form} onValueChange={setForm}>
                 <SelectTrigger>
@@ -129,7 +129,7 @@ const PieceForm = () => {
 
           {/* Stage Row */}
           <div className="flex items-center gap-4">
-            <div className="w-20 text-[15px] font-medium text-foreground">Stage</div>
+            <div className="w-20 field-label">Stage</div>
             <div className="flex-1">
               <Select value={stage} onValueChange={(v) => setStage(v as Stage)}>
                 <SelectTrigger>
@@ -148,7 +148,7 @@ const PieceForm = () => {
 
           {/* Clay Body Row */}
           <div className="flex items-start gap-4">
-            <div className="w-20 text-[15px] font-medium text-foreground pt-2">Clay Body</div>
+            <div className="w-20 field-label pt-2">Clay Body</div>
             <div className="flex-1 space-y-2">
               <Select value={clayType} onValueChange={setClayType}>
                 <SelectTrigger>
@@ -173,11 +173,11 @@ const PieceForm = () => {
       {/* Section 3: Decoration */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Decoration</CardTitle>
+          <CardTitle className="section-header decoration-section-title">Decoration</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 decoration-section">
            <div className="flex items-center gap-4">
-            <div className="w-20 text-[15px] font-medium text-foreground">Glaze</div>
+            <div className="w-20 field-label">Glaze</div>
             <div className="flex-1">
               <Input 
                 placeholder="Glaze details" 
@@ -187,7 +187,7 @@ const PieceForm = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="w-20 text-[15px] font-medium text-foreground">Carving</div>
+            <div className="w-20 field-label">Carving</div>
             <div className="flex-1">
               <Input 
                 placeholder="Carving details" 
@@ -197,7 +197,7 @@ const PieceForm = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="w-20 text-[15px] font-medium text-foreground">Slip</div>
+            <div className="w-20 field-label">Slip</div>
             <div className="flex-1">
               <Input 
                 placeholder="Slip details" 
@@ -207,7 +207,7 @@ const PieceForm = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="w-20 text-[15px] font-medium text-foreground">Underglaze</div>
+            <div className="w-20 field-label">Underglaze</div>
             <div className="flex-1">
               <Input 
                 placeholder="Underglaze details" 
@@ -222,7 +222,7 @@ const PieceForm = () => {
       {/* Section 4: Notes */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Notes</CardTitle>
+          <CardTitle className="section-header">Notes</CardTitle>
         </CardHeader>
         <CardContent>
           <Textarea 
@@ -237,7 +237,7 @@ const PieceForm = () => {
       {/* Section 5: Inspirations */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Inspirations</CardTitle>
+          <CardTitle className="section-header">Inspirations</CardTitle>
         </CardHeader>
         <CardContent>
           {inspirations.length === 0 ? (
