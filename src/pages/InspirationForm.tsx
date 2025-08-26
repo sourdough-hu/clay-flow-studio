@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Inspiration, Piece } from "@/types";
 import { addInspiration, getPieces } from "@/lib/storage";
-import { linkPieceAndInspiration } from "@/lib/supabase-links";
+import { safeUpsertLink } from "@/lib/supabase-links";
 import { SEO } from "@/components/SEO";
 import MultiPhotoPicker from "@/components/MultiPhotoPicker";
 
@@ -53,7 +53,7 @@ const InspirationForm = () => {
     // Create symmetric link using Supabase if piece is selected
     if (linkTo) {
       try {
-        await linkPieceAndInspiration(linkTo, id);
+        await safeUpsertLink(linkTo, id);
       } catch (error) {
         console.error('Failed to create link:', error);
       }
