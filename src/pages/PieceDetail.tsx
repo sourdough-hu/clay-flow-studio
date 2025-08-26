@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getPieceById, upsertPiece, getInspirationsForPiece } from "@/lib/storage";
+import { getPieceById, upsertPiece } from "@/lib/storage";
+import { getInspirationsForPiece } from "@/lib/supabase-links";
 import { advanceStage, stageOrder } from "@/lib/stage";
 import { SEO } from "@/components/SEO";
 import PhotoGallery from "@/components/PhotoGallery";
@@ -87,7 +88,19 @@ const PieceDetail = () => {
   };
 
   // Get linked inspirations and flatten all photos
-  const linkedInspirations = getInspirationsForPiece(piece.id);
+  const [linkedInspirations, setLinkedInspirations] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const fetchLinkedInspirations = async () => {
+      if (piece?.id) {
+        const inspirations = await getInspirationsForPiece(piece.id);
+        setLinkedInspirations(inspirations);
+        console.table({ fromJoinTable: inspirations.map(x => x.id) });
+      }
+    };
+    fetchLinkedInspirations();
+  }, [piece?.id]);
+
   const inspPhotos = useMemo(() => {
     return linkedInspirations.flatMap((insp, inspIndex) => {
       // Handle both photos array and image_url fallback

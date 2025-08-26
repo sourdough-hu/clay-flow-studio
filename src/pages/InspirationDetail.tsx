@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,8 @@ import MultiPhotoPicker from "@/components/MultiPhotoPicker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Inspiration, Piece } from "@/types";
-import { getInspirations, getPieces, getPiecesForInspiration, setInspirationLinks, updateInspiration } from "@/lib/storage";
+import { getInspirations, getPieces, updateInspiration } from "@/lib/storage";
+import { getPiecesForInspiration, setInspirationLinks } from "@/lib/supabase-links";
 
 const InspirationDetail = () => {
   const { id } = useParams();
@@ -16,7 +17,18 @@ const InspirationDetail = () => {
 
   const inspiration = useMemo(() => getInspirations().find((i) => i.id === id), [id]);
   const allPieces = getPieces();
-  const linkedPieces = id ? getPiecesForInspiration(id) : [];
+  const [linkedPieces, setLinkedPieces] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const fetchLinkedPieces = async () => {
+      if (id) {
+        const pieces = await getPiecesForInspiration(id);
+        setLinkedPieces(pieces);
+        console.table({ fromJoinTable: pieces.map(x => x.id) });
+      }
+    };
+    fetchLinkedPieces();
+  }, [id]);
 
   const [note, setNote] = useState<string>(inspiration?.note ?? "");
   const [tags, setTags] = useState<string>((inspiration?.tags ?? []).join(", "));
@@ -25,7 +37,12 @@ const InspirationDetail = () => {
       ? inspiration.photos
       : (inspiration?.image_url ? [inspiration.image_url] : [])
   );
-  const [selectedPieceIds, setSelectedPieceIds] = useState<string[]>(linkedPieces.map((p) => p.id));
+  const [selectedPieceIds, setSelectedPieceIds] = useState<string[]>([]);
+  
+  // Update selectedPieceIds when linkedPieces changes
+  useEffect(() => {
+    setSelectedPieceIds(linkedPieces.map((p) => p.id));
+  }, [linkedPieces]);
   const [isEditing, setIsEditing] = useState(false);
 
   if (!inspiration) return <main className="p-4">Inspiration not found.</main>;
@@ -35,7 +52,7 @@ const InspirationDetail = () => {
     setSelectedPieceIds((prev) => prev.includes(pid) ? prev.filter((x) => x !== pid) : [...prev, pid]);
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     const updated: Inspiration = {
       ...inspiration,
       note: note || undefined,
@@ -44,7 +61,7 @@ const InspirationDetail = () => {
       image_url: photos[0] || inspiration.image_url,
     };
     updateInspiration(updated);
-    setInspirationLinks(inspiration.id, selectedPieceIds);
+    await setInspirationLinks(inspiration.id, selectedPieceIds);
     navigate(0);
   };
 
