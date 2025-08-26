@@ -219,8 +219,8 @@ export default function AccountModal({ open, onOpenChange }: AccountModalProps) 
       
       onOpenChange(false);
       
-      // Navigate to onboarding or welcome screen
-      window.location.href = "/onboarding";
+      // Navigate to auth page
+      window.location.href = "/auth";
     } catch (error) {
       console.error("Sign out error:", error);
       toast({

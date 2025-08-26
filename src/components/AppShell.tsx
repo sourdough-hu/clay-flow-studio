@@ -2,7 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import TopAppBar from "@/components/TopAppBar";
 import BottomNav from "@/components/BottomNav";
 import { ReminderChecker } from "@/components/ReminderChecker";
-import OnboardingGate from "@/components/OnboardingGate";
+import AuthGate from "@/components/AuthGate";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import Index from "@/pages/Index";
 import Tasks from "@/pages/Tasks";
@@ -15,26 +15,24 @@ import InspirationForm from "@/pages/InspirationForm";
 import InspirationDetail from "@/pages/InspirationDetail";
 import Account from "@/pages/Account";
 import StartNew from "@/pages/StartNew";
-import Onboarding from "@/pages/Onboarding";
 import NotFound from "@/pages/NotFound";
 import Gallery from "@/pages/Gallery";
-import Auth from "@/pages/Auth";
+import UnifiedAuth from "@/pages/UnifiedAuth";
 import ForgotPassword from "@/pages/ForgotPassword";
 
 const AppShell = () => {
   const location = useLocation();
-  const hideChrome = ["/onboarding", "/auth", "/forgot-password"].includes(location.pathname);
+  const hideChrome = ["/auth", "/forgot-password"].includes(location.pathname);
 
   return (
     <>
       {!hideChrome && <TopAppBar />}
-      <OnboardingGate />
+      <AuthGate />
       <OfflineIndicator />
       <div className={hideChrome ? "" : "pt-[calc(3.5rem+env(safe-area-inset-top))] pb-[calc(5rem+env(safe-area-inset-bottom))]"}>
         <ReminderChecker />
         <Routes>
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth" element={<UnifiedAuth />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/" element={<Index />} />
           <Route path="/tasks" element={<Tasks />} />

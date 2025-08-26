@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const Auth = () => {
+const UnifiedAuth = () => {
   const navigate = useNavigate();
 
   const [signInEmail, setSignInEmail] = useState("");
@@ -343,4 +343,4 @@ const Auth = () => {
   );
 };
 
-export default Auth;
+export default UnifiedAuth;

@@ -11,7 +11,7 @@ function hasUserOrGuest() {
   }
 }
 
-export const OnboardingGate = () => {
+export const AuthGate = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -30,4 +30,4 @@ export const OnboardingGate = () => {
   return null;
 };
 
-export default OnboardingGate;
+export default AuthGate;
