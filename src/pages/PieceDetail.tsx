@@ -19,6 +19,18 @@ const PieceDetail = () => {
   const piece = useMemo(() => (id ? getPieceById(id) : undefined), [id]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
+  // Debug: Log the photos data
+  if (piece?.photos) {
+    console.log('Photos array:', piece.photos);
+    console.table(
+      piece.photos.map((photo, i) => ({ 
+        index: i, 
+        url: photo,
+        isSelected: i === selectedPhotoIndex 
+      }))
+    );
+  }
+
   if (!piece) return <main className="p-4">Piece not found.</main>;
 
   const onAdvance = () => {
@@ -79,7 +91,7 @@ const PieceDetail = () => {
                       aria-label={`Photo ${index + 1} of ${piece.photos.length}`}
                     >
                       <img
-                        src={getThumbnailUrl(piece.photos, photo)}
+                        src={photo}
                         alt={`Thumbnail ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
