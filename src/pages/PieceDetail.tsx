@@ -51,34 +51,40 @@ const PieceDetail = () => {
       {/* Hero Image and Thumbnail Strip */}
       {piece.photos && piece.photos.length > 0 ? (
         <div className="relative">
-          {/* Hero Image */}
-          <div className="relative w-full h-[45vh] overflow-hidden">
+          {/* Hero Image - Show thumbnail (first photo) */}
+          <div 
+            className="relative w-full h-[45vh] overflow-hidden cursor-pointer"
+            onClick={() => {
+              const galleryTrigger = document.querySelector('[data-photo-gallery-trigger]') as HTMLElement;
+              galleryTrigger?.click();
+            }}
+          >
             <img
-              src={getThumbnailUrl(piece.photos, piece.photos[selectedPhotoIndex])}
-              alt={`${piece.title} - Photo ${selectedPhotoIndex + 1}`}
+              src={getThumbnailUrl(piece.photos, piece.photos[0])}
+              alt={`${piece.title} - Thumbnail`}
               className="w-full h-full object-cover"
             />
-            {/* Clicking hero opens gallery at current index */}
           </div>
 
-          {/* Thumbnail Strip */}
+          {/* Thumbnail Strip - Show other photos (excluding thumbnail) */}
           {piece.photos.length > 1 && (
             <div className="px-4 py-3 bg-background border-b">
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                {piece.photos.map((photo, index) => (
+                {piece.photos.slice(1).map((photo, index) => (
                   <button
-                    key={index}
-                    onClick={() => setSelectedPhotoIndex(index)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedPhotoIndex === index
-                        ? "border-primary ring-2 ring-primary/20"
-                        : "border-muted-foreground/25 hover:border-muted-foreground/50"
-                    }`}
-                    aria-label={`Photo ${index + 1} of ${piece.photos.length}`}
+                    key={index + 1}
+                    onClick={() => {
+                      // Update hero to show this photo, then open gallery
+                      const galleryTrigger = document.querySelector('[data-photo-gallery-trigger]') as HTMLElement;
+                      setSelectedPhotoIndex(index + 1);
+                      galleryTrigger?.click();
+                    }}
+                    className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-muted-foreground/25 hover:border-muted-foreground/50 transition-all"
+                    aria-label={`Photo ${index + 2} of ${piece.photos.length}`}
                   >
                     <img
                       src={getThumbnailUrl(piece.photos, photo)}
-                      alt={`Thumbnail ${index + 1}`}
+                      alt={`Thumbnail ${index + 2}`}
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -106,62 +112,59 @@ const PieceDetail = () => {
           </Link>
         </div>
 
-        {/* Overview Section */}
+        {/* Stage Overview Section */}
         <Card>
           <CardHeader>
-            <CardTitle className="section-header">Overview</CardTitle>
+            <CardTitle className="section-header">Stage Overview</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center gap-4">
-              <div className="w-20 field-label">Stage</div>
-              <div className="flex-1 font-normal">
-                {piece.current_stage.replace("_", " ").charAt(0).toUpperCase() + piece.current_stage.replace("_", " ").slice(1)}
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-start gap-4">
+                <div className="w-20 field-label">Stage</div>
+                <div className="flex-1 font-normal">
+                  {piece.current_stage.replace("_", " ").charAt(0).toUpperCase() + piece.current_stage.replace("_", " ").slice(1)}
+                </div>
               </div>
+
+              {piece.next_step && (
+                <div className="flex items-start gap-4">
+                  <div className="w-20 field-label">Next</div>
+                  <div className="flex-1 font-normal">{piece.next_step}</div>
+                </div>
+              )}
+
+              {piece.next_reminder_at && (
+                <div className="flex items-start gap-4">
+                  <div className="w-20 field-label">Reminder</div>
+                  <div className="flex-1 font-normal">{new Date(piece.next_reminder_at).toLocaleDateString()}</div>
+                </div>
+              )}
+
+              {piece.stage_history && piece.stage_history.length > 0 && (
+                <div className="flex items-start gap-4">
+                  <div className="w-20 field-label">History</div>
+                  <div className="flex-1 space-y-1">
+                    {piece.stage_history.slice(-3).map((h, i) => (
+                      <div key={i} className="text-sm text-muted-foreground">
+                        {h.stage.replace("_", " ")} — {new Date(h.date).toLocaleDateString()}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {piece.next_step && (
-              <div className="flex items-center gap-4">
-                <div className="w-20 field-label">Next</div>
-                <div className="flex-1 font-normal">{piece.next_step}</div>
-              </div>
-            )}
-
-            {piece.next_reminder_at && (
-              <div className="flex items-center gap-4">
-                <div className="w-20 field-label">Reminder</div>
-                <div className="flex-1 font-normal">{new Date(piece.next_reminder_at).toLocaleDateString()}</div>
-              </div>
-            )}
-
-            {piece.stage_history && piece.stage_history.length > 0 && (
-              <div>
-                <div className="field-label mb-2">History</div>
-                <div className="space-y-1">
-                  {piece.stage_history.slice(-3).map((h, i) => (
-                    <div key={i} className="text-sm text-muted-foreground">
-                      {h.stage.replace("_", " ")} — {new Date(h.date).toLocaleDateString()}
-                    </div>
-                  ))}
+            {/* Stage Actions */}
+            {piece.current_stage !== "finished" && (
+              <div className="pt-3 border-t">
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="hero" onClick={onAdvance}>Mark stage complete</Button>
+                  <Button variant="outline" onClick={() => setShowAdjust(true)}>Adjust Next Checkpoint</Button>
                 </div>
               </div>
             )}
           </CardContent>
         </Card>
-
-        {/* Stage Section */}
-        {piece.current_stage !== "finished" && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="section-header">Stage</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                <Button variant="hero" onClick={onAdvance}>Mark stage complete</Button>
-                <Button variant="outline" onClick={() => setShowAdjust(true)}>Adjust Next Checkpoint</Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Details Section */}
         {hasDetailsContent && (
@@ -169,14 +172,14 @@ const PieceDetail = () => {
             <CardHeader>
               <CardTitle className="section-header">Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-5">
+            <CardContent className="space-y-6">
               {/* About Sub-section */}
               {hasAboutContent && (
                 <div className="space-y-3">
-                  <h4 className="field-label text-muted-foreground">About</h4>
+                  <h4 className="text-[17px] font-semibold">About</h4>
                   
                   {piece.form && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4">
                       <div className="w-20 field-label">Form</div>
                       <div className="flex-1 font-normal">
                         {piece.form}
@@ -188,7 +191,7 @@ const PieceDetail = () => {
                   )}
 
                   {piece.current_stage && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4">
                       <div className="w-20 field-label">Stage</div>
                       <div className="flex-1 font-normal">
                         {piece.current_stage.replace("_", " ").charAt(0).toUpperCase() + piece.current_stage.replace("_", " ").slice(1)}
@@ -197,7 +200,7 @@ const PieceDetail = () => {
                   )}
 
                   {piece.clay_type && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4">
                       <div className="w-20 field-label">Clay Body</div>
                       <div className="flex-1 font-normal">
                         {piece.clay_type}
@@ -213,31 +216,31 @@ const PieceDetail = () => {
               {/* Decoration Sub-section */}
               {hasDecorationContent && (
                 <div className="space-y-3">
-                  <h4 className="field-label text-muted-foreground">Decoration</h4>
+                  <h4 className="text-[17px] font-semibold">Decoration</h4>
                   
                   {piece.glaze && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4">
                       <div className="w-20 field-label">Glaze</div>
                       <div className="flex-1 font-normal">{piece.glaze}</div>
                     </div>
                   )}
 
                   {piece.carving && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4">
                       <div className="w-20 field-label">Carving</div>
                       <div className="flex-1 font-normal">{piece.carving}</div>
                     </div>
                   )}
 
                   {piece.slip && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4">
                       <div className="w-20 field-label">Slip</div>
                       <div className="flex-1 font-normal">{piece.slip}</div>
                     </div>
                   )}
 
                   {piece.underglaze && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4">
                       <div className="w-20 field-label">Underglaze</div>
                       <div className="flex-1 font-normal">{piece.underglaze}</div>
                     </div>
@@ -248,7 +251,7 @@ const PieceDetail = () => {
               {/* Notes Sub-section */}
               {hasNotesContent && (
                 <div className="space-y-3">
-                  <h4 className="field-label text-muted-foreground">Notes</h4>
+                  <h4 className="text-[17px] font-semibold">Notes</h4>
                   <div className="text-sm font-normal whitespace-pre-wrap text-muted-foreground">
                     {piece.notes}
                   </div>
@@ -336,6 +339,14 @@ const PieceDetail = () => {
         {piece.photos && (
           <div className="fixed bottom-4 right-4 opacity-0 pointer-events-none">
             <PhotoGallery photos={piece.photos} initialIndex={selectedPhotoIndex} />
+            <button 
+              data-photo-gallery-trigger
+              className="hidden"
+              onClick={() => {
+                const gallery = document.querySelector('[data-photo-gallery]') as HTMLElement;
+                gallery?.click();
+              }}
+            />
           </div>
         )}
       </div>
