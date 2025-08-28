@@ -13,17 +13,24 @@ export async function migratePiecesToSupabase(): Promise<void> {
 
   console.log(`Migrating ${piecesToMigrate.length} pieces to Supabase`);
   
-  const { data: { session } } = await supabase.auth.getSession();
+  // Ensure we have a valid session
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    console.error('Session error:', sessionError);
+    throw new Error('Failed to get user session');
+  }
+  
   if (!session?.user?.id) {
-    throw new Error('User not authenticated');
+    throw new Error('User not authenticated. Please sign in and try again.');
   }
 
   const updatedPieces = [...localPieces];
+  let migratedCount = 0;
+  const errors: string[] = [];
   
   for (const piece of piecesToMigrate) {
     try {
-      // TODO: Upload photos and get remote URLs
-      // For now, we'll keep the local photo URLs
+      console.log(`Migrating piece: ${piece.title}`);
       
       const pieceData = {
         title: piece.title,
@@ -32,7 +39,6 @@ export async function migratePiecesToSupabase(): Promise<void> {
         current_stage: piece.current_stage,
         clay_type: piece.clay_type,
         clay_subtype: piece.clay_body_details,
-        size_category: undefined, // Not in current schema
         storage_location: piece.storage_location,
         notes: piece.notes,
         tags: piece.tags || [],
@@ -51,7 +57,14 @@ export async function migratePiecesToSupabase(): Promise<void> {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error(`Supabase error for piece ${piece.title}:`, error);
+        throw new Error(`Database error: ${error.message}`);
+      }
+
+      if (!data?.id) {
+        throw new Error('No data returned from insertion');
+      }
 
       // Update local piece with remote_id
       const index = updatedPieces.findIndex(p => p.id === piece.id);
@@ -62,15 +75,27 @@ export async function migratePiecesToSupabase(): Promise<void> {
         };
       }
 
-      console.log(`Migrated piece: ${piece.title}`);
+      migratedCount++;
+      console.log(`Successfully migrated piece: ${piece.title} (${migratedCount}/${piecesToMigrate.length})`);
+      
     } catch (error) {
-      console.error(`Failed to migrate piece ${piece.title}:`, error);
-      // Continue with other pieces
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Failed to migrate piece ${piece.title}:`, errorMessage);
+      errors.push(`${piece.title}: ${errorMessage}`);
     }
   }
   
   // Save updated pieces back to localStorage
   savePieces(updatedPieces);
+  
+  // Report results
+  console.log(`Migration complete: ${migratedCount}/${piecesToMigrate.length} pieces migrated`);
+  if (errors.length > 0) {
+    console.warn('Some pieces failed to migrate:', errors);
+    if (migratedCount === 0) {
+      throw new Error(`Failed to migrate any pieces. First error: ${errors[0]}`);
+    }
+  }
 }
 
 export async function migrateInspirationsToSupabase(): Promise<void> {
@@ -84,17 +109,24 @@ export async function migrateInspirationsToSupabase(): Promise<void> {
 
   console.log(`Migrating ${inspirationsToMigrate.length} inspirations to Supabase`);
   
-  const { data: { session } } = await supabase.auth.getSession();
+  // Ensure we have a valid session
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    console.error('Session error:', sessionError);
+    throw new Error('Failed to get user session');
+  }
+  
   if (!session?.user?.id) {
-    throw new Error('User not authenticated');
+    throw new Error('User not authenticated. Please sign in and try again.');
   }
 
   const updatedInspirations = [...localInspirations];
+  let migratedCount = 0;
+  const errors: string[] = [];
   
   for (const inspiration of inspirationsToMigrate) {
     try {
-      // TODO: Upload photos and get remote URLs
-      // For now, we'll keep the local photo URLs
+      console.log(`Migrating inspiration: ${inspiration.id}`);
       
       const inspirationData = {
         image_url: inspiration.image_url,
@@ -112,7 +144,14 @@ export async function migrateInspirationsToSupabase(): Promise<void> {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error(`Supabase error for inspiration ${inspiration.id}:`, error);
+        throw new Error(`Database error: ${error.message}`);
+      }
+
+      if (!data?.id) {
+        throw new Error('No data returned from insertion');
+      }
 
       // Update local inspiration with remote_id
       const index = updatedInspirations.findIndex(i => i.id === inspiration.id);
@@ -123,15 +162,27 @@ export async function migrateInspirationsToSupabase(): Promise<void> {
         };
       }
 
-      console.log(`Migrated inspiration: ${inspiration.id}`);
+      migratedCount++;
+      console.log(`Successfully migrated inspiration: ${inspiration.id} (${migratedCount}/${inspirationsToMigrate.length})`);
+      
     } catch (error) {
-      console.error(`Failed to migrate inspiration ${inspiration.id}:`, error);
-      // Continue with other inspirations
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Failed to migrate inspiration ${inspiration.id}:`, errorMessage);
+      errors.push(`${inspiration.id}: ${errorMessage}`);
     }
   }
   
   // Save updated inspirations back to localStorage
   saveInspirations(updatedInspirations);
+  
+  // Report results
+  console.log(`Migration complete: ${migratedCount}/${inspirationsToMigrate.length} inspirations migrated`);
+  if (errors.length > 0) {
+    console.warn('Some inspirations failed to migrate:', errors);
+    if (migratedCount === 0) {
+      throw new Error(`Failed to migrate any inspirations. First error: ${errors[0]}`);
+    }
+  }
 }
 
 export async function migrateLinksToSupabase(): Promise<void> {
@@ -144,9 +195,15 @@ export async function migrateLinksToSupabase(): Promise<void> {
 
   console.log(`Migrating ${localLinks.length} links to Supabase`);
   
-  const { data: { session } } = await supabase.auth.getSession();
+  // Ensure we have a valid session
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    console.error('Session error:', sessionError);
+    throw new Error('Failed to get user session');
+  }
+  
   if (!session?.user?.id) {
-    throw new Error('User not authenticated');
+    throw new Error('User not authenticated. Please sign in and try again.');
   }
 
   // Get updated pieces and inspirations to map local IDs to remote IDs
@@ -168,6 +225,9 @@ export async function migrateLinksToSupabase(): Promise<void> {
     }
   });
 
+  let migratedCount = 0;
+  const errors: string[] = [];
+
   for (const link of localLinks) {
     try {
       const remotePieceId = pieceIdMap.get(link.piece_id);
@@ -177,6 +237,8 @@ export async function migrateLinksToSupabase(): Promise<void> {
         console.warn(`Skipping link: missing remote IDs for piece ${link.piece_id} or inspiration ${link.inspiration_id}`);
         continue;
       }
+
+      console.log(`Migrating link: ${link.piece_id} -> ${link.inspiration_id}`);
 
       const { error } = await supabase
         .from('piece_inspiration_links')
@@ -189,12 +251,25 @@ export async function migrateLinksToSupabase(): Promise<void> {
           ignoreDuplicates: true
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error(`Supabase error for link ${link.piece_id} -> ${link.inspiration_id}:`, error);
+        throw new Error(`Database error: ${error.message}`);
+      }
 
-      console.log(`Migrated link: ${link.piece_id} -> ${link.inspiration_id}`);
+      migratedCount++;
+      console.log(`Successfully migrated link: ${link.piece_id} -> ${link.inspiration_id} (${migratedCount}/${localLinks.length})`);
+      
     } catch (error) {
-      console.error(`Failed to migrate link ${link.piece_id} -> ${link.inspiration_id}:`, error);
-      // Continue with other links
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Failed to migrate link ${link.piece_id} -> ${link.inspiration_id}:`, errorMessage);
+      errors.push(`${link.piece_id} -> ${link.inspiration_id}: ${errorMessage}`);
     }
+  }
+  
+  // Report results
+  console.log(`Migration complete: ${migratedCount}/${localLinks.length} links migrated`);
+  if (errors.length > 0) {
+    console.warn('Some links failed to migrate:', errors);
+    // Links are less critical, so we don't throw an error here
   }
 }
