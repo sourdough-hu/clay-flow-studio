@@ -59,7 +59,7 @@ const Pieces = () => {
 
 
       <div className="space-y-4">
-        <Input placeholder="Search titles, notes, tags" value={q} onChange={(e) => setQ(e.target.value)} />
+        <Input placeholder="Search titles, notes, tags, decorations" value={q} onChange={(e) => setQ(e.target.value)} />
         <FilterBottomSheet activeFilters={activeFilters} onFiltersChange={setActiveFilters} />
       </div>
       <Link to="/new/piece" className="block">

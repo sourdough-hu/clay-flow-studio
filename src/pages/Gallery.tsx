@@ -58,7 +58,7 @@ const Gallery = () => {
       <SEO title="Pottery Tracker — Gallery" description="Browse your finished pieces in the gallery." />
 
       <div className="space-y-4">
-        <Input placeholder="Search titles, notes, tags" value={q} onChange={(e) => setQ(e.target.value)} />
+        <Input placeholder="Search titles, notes, tags, decorations" value={q} onChange={(e) => setQ(e.target.value)} />
         <FilterBottomSheet activeFilters={activeFilters} onFiltersChange={setActiveFilters} hideStage={true} />
       </div>
       <Link to="/new/piece?stage=finished" className="block">
