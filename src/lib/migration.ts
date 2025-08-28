@@ -2,7 +2,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { getPieces, getInspirations, getLinks, savePieces, saveInspirations } from '@/lib/storage';
 import { Piece, Inspiration } from '@/types';
 
-export async function migratePiecesToSupabase(): Promise<void> {
+export async function migratePiecesToSupabase(
+  onProgress?: (current: number, total: number, status: string) => void
+): Promise<void> {
   const localPieces = getPieces();
   const piecesToMigrate = localPieces.filter(piece => !piece.remote_id);
   
@@ -31,6 +33,7 @@ export async function migratePiecesToSupabase(): Promise<void> {
   for (const piece of piecesToMigrate) {
     try {
       console.log(`Migrating piece: ${piece.title}`);
+      onProgress?.(migratedCount, piecesToMigrate.length, `Migrating piece: ${piece.title}`);
       
       const pieceData = {
         title: piece.title,
@@ -77,6 +80,7 @@ export async function migratePiecesToSupabase(): Promise<void> {
 
       migratedCount++;
       console.log(`Successfully migrated piece: ${piece.title} (${migratedCount}/${piecesToMigrate.length})`);
+      onProgress?.(migratedCount, piecesToMigrate.length, `Migrated piece: ${piece.title}`);
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -98,7 +102,9 @@ export async function migratePiecesToSupabase(): Promise<void> {
   }
 }
 
-export async function migrateInspirationsToSupabase(): Promise<void> {
+export async function migrateInspirationsToSupabase(
+  onProgress?: (current: number, total: number, status: string) => void
+): Promise<void> {
   const localInspirations = getInspirations();
   const inspirationsToMigrate = localInspirations.filter(inspiration => !inspiration.remote_id);
   
@@ -127,6 +133,7 @@ export async function migrateInspirationsToSupabase(): Promise<void> {
   for (const inspiration of inspirationsToMigrate) {
     try {
       console.log(`Migrating inspiration: ${inspiration.id}`);
+      onProgress?.(migratedCount, inspirationsToMigrate.length, `Migrating inspiration: ${inspiration.id}`);
       
       const inspirationData = {
         image_url: inspiration.image_url,
@@ -164,6 +171,7 @@ export async function migrateInspirationsToSupabase(): Promise<void> {
 
       migratedCount++;
       console.log(`Successfully migrated inspiration: ${inspiration.id} (${migratedCount}/${inspirationsToMigrate.length})`);
+      onProgress?.(migratedCount, inspirationsToMigrate.length, `Migrated inspiration: ${inspiration.id}`);
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

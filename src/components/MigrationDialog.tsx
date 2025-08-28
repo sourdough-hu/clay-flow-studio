@@ -58,15 +58,28 @@ const MigrationDialog: React.FC<MigrationDialogProps> = ({
     try {
       console.log('Starting migration process...');
       
+      const pieces = getPieces().filter(p => !p.remote_id);
+      const inspirations = getInspirations().filter(i => !i.remote_id);
+      const totalSteps = pieces.length + inspirations.length + 1; // +1 for links
+      let completedSteps = 0;
+      
       // Step 1: Migrate pieces
       setCurrentStep('Migrating pieces...');
-      await migratePiecesToSupabase();
-      setProgress(40);
+      await migratePiecesToSupabase((current, total, status) => {
+        completedSteps = current;
+        const progressPercent = Math.round((completedSteps / totalSteps) * 100);
+        setProgress(progressPercent);
+        setCurrentStep(status);
+      });
       
       // Step 2: Migrate inspirations
       setCurrentStep('Migrating inspirations...');
-      await migrateInspirationsToSupabase();
-      setProgress(80);
+      await migrateInspirationsToSupabase((current, total, status) => {
+        completedSteps = pieces.length + current;
+        const progressPercent = Math.round((completedSteps / totalSteps) * 100);
+        setProgress(progressPercent);
+        setCurrentStep(status);
+      });
       
       // Step 3: Migrate links
       setCurrentStep('Linking inspirations to pieces...');
